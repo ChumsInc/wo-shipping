@@ -1,0 +1,21 @@
+@media print {
+  #app form,
+#app .nav-tabs,
+#app .form-inline {
+    display: none;
+  }
+}
+#app table.table tr th:nth-child(1),
+#app table.table tr th:nth-child(6),
+#app table.table tr th:nth-child(7),
+#app table.table tr td:nth-child(1),
+#app table.table tr td:nth-child(6),
+#app table.table tr td:nth-child(7) {
+  text-align: right;
+  padding-right: 0.5rem;
+}
+#app table.table tr td:last-child {
+  white-space: nowrap;
+}
+
+/*# sourceMappingURL=styles.css.map */

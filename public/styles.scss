@@ -1,0 +1,31 @@
+//@import "../node_modules/bootstrap/scss/bootstrap";
+
+#app {
+  form,
+  .nav-tabs,
+  .form-inline {
+    @media print {
+      display: none;
+    }
+  }
+
+  table.table {
+    tr {
+
+      th:nth-child(1),
+      th:nth-child(6),
+      th:nth-child(7),
+      td:nth-child(1),
+      td:nth-child(6),
+      td:nth-child(7) {
+        text-align: right;
+        padding-right: 0.5rem;
+      }
+      td:last-child {
+        white-space: nowrap;
+      }
+    }
+  }
+  //@import "./pagination";
+
+}
