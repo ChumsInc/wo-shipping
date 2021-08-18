@@ -18,6 +18,11 @@ export interface ManifestEntry {
 }
 
 
+export interface ManifestTotals {
+    QuantityShipped: number,
+    QuantityOrdered: number,
+}
+
 export type ManifestEntryField = keyof ManifestEntry;
 
 export interface ManifestTableField extends  SortableTableField {

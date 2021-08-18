@@ -12,12 +12,14 @@ export const tableFields: ManifestTableField[] = [
         field: 'QuantityShipped',
         title: 'Qty Shipped',
         sortable: true,
+        className: 'right',
         render: (row) => numeral(row.QuantityShipped).format('0,0')
     },
     {
         field: 'QuantityOrdered',
         title: 'Qty Ordered',
         sortable: true,
+        className: 'right',
         render: (row) => numeral(row.QuantityOrdered).format('0,0')
     },
     {

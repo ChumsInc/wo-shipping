@@ -15,6 +15,8 @@ import {defaultSort, listSelector, selectedEntrySelector} from "./index";
 import {selectEntryAction} from "./actions";
 import './manifest.css';
 import {commentFields, tableFields} from "./tableFields";
+import numeral from "numeral";
+import ManifestTotalTFoot from "./ManifestTotalTFoot";
 
 
 const TABLE_KEY = 'manifest';
@@ -39,7 +41,7 @@ const ManifestEntryList: React.FC = () => {
     return (
         <div>
             <SortableTable tableKey={TABLE_KEY} keyField={entryLineKey} fields={tableFields} data={[]}
-                           onSelectRow={onSelect}>
+                           onSelectRow={onSelect} >
                 <tbody>
                 <ErrorBoundary>
                     {pagedList.map(row => {
@@ -59,7 +61,9 @@ const ManifestEntryList: React.FC = () => {
                         )
                     })}
                 </ErrorBoundary>
+
                 </tbody>
+                <ManifestTotalTFoot />
             </SortableTable>
             <PagerDuck pageKey={TABLE_KEY} dataLength={list.length}/>
         </div>

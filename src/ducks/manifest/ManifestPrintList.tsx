@@ -16,6 +16,7 @@ import {
 import {defaultSort, listSelector} from "./index";
 import './manifest.css';
 import {commentFields, tableFields} from "./tableFields";
+import ManifestTotalTFoot from "./ManifestTotalTFoot";
 
 const TABLE_KEY = 'print-manifest';
 
@@ -40,7 +41,7 @@ const ManifestPrintList: React.FC = () => {
     const pagedList = useSelector(pagedDataSelector(TABLE_KEY, filteredList));
 
     useEffect(() => {
-        dispatch(tableAddedAction({key: TABLE_KEY, ...defaultSort}));
+        dispatch(tableAddedAction({key: TABLE_KEY, field: 'id', ascending: true}));
         dispatch(addPageSetAction({key: TABLE_KEY, rowsPerPage: 25}));
     }, []);
 
@@ -105,6 +106,7 @@ const ManifestPrintList: React.FC = () => {
                     })}
                 </ErrorBoundary>
                 </tbody>
+                <ManifestTotalTFoot />
             </SortableTable>
             <PagerDuck pageKey={TABLE_KEY} dataLength={list.length}/>
         </div>
