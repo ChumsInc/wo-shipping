@@ -1,0 +1,17 @@
+.table {
+  @media print {
+    font-size: 10px;
+  }
+
+  tr.has-comment {
+    td {
+      border-bottom-color: transparent;
+    }
+  }
+}
+
+form {
+  @media print {
+    display: none;
+  }
+}

@@ -1,0 +1,16 @@
+@media print {
+  .table {
+    font-size: 10px;
+  }
+}
+.table tr.has-comment td {
+  border-bottom-color: transparent;
+}
+
+@media print {
+  form {
+    display: none;
+  }
+}
+
+/*# sourceMappingURL=manifest.css.map */

@@ -11,6 +11,11 @@
 
   table.table {
     tr {
+      .has-comment {
+        td {
+          margin-bottom: 0;
+        }
+      }
 
       th:nth-child(1),
       th:nth-child(6),

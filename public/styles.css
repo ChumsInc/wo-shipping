@@ -5,6 +5,9 @@
     display: none;
   }
 }
+#app table.table tr .has-comment td {
+  margin-bottom: 0;
+}
 #app table.table tr th:nth-child(1),
 #app table.table tr th:nth-child(6),
 #app table.table tr th:nth-child(7),
