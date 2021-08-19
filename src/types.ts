@@ -9,7 +9,7 @@ export interface ManifestEntry {
     ItemCodeDesc?: string,
     BoxNo?: number,
     QuantityShipped: number,
-    QuantityOrdered?: number,
+    QuantityOrdered: number,
     QuantityComplete?: number,
     PackDate?: string,
     ShipDate: string,
@@ -19,6 +19,7 @@ export interface ManifestEntry {
 
 
 export interface ManifestTotals {
+    label?: string,
     QuantityShipped: number,
     QuantityOrdered: number,
 }

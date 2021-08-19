@@ -1,6 +1,6 @@
 import React, {ChangeEvent, Fragment, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {entryLineKey, ManifestEntrySorterProps} from "../../types";
+import {entryLineKey, ManifestEntry, ManifestEntrySorterProps} from "../../types";
 import {
     addPageSetAction,
     ErrorBoundary,
@@ -13,12 +13,17 @@ import {
     SortableTR,
     tableAddedAction
 } from 'chums-ducks';
-import {defaultSort, listSelector} from "./index";
+import {listSelector} from "./index";
 import './manifest.css';
 import {commentFields, tableFields} from "./tableFields";
 import ManifestTotalTFoot from "./ManifestTotalTFoot";
+import LocalStore from "../../LocalStore";
+import {CURRENT_PRINT_ROWS} from "../../constants";
+import {totalsReducer} from "./utils";
+import {selectEntryAction} from "./actions";
 
 const TABLE_KEY = 'print-manifest';
+
 
 const ManifestPrintList: React.FC = () => {
     const dispatch = useDispatch();
@@ -42,7 +47,7 @@ const ManifestPrintList: React.FC = () => {
 
     useEffect(() => {
         dispatch(tableAddedAction({key: TABLE_KEY, field: 'id', ascending: true}));
-        dispatch(addPageSetAction({key: TABLE_KEY, rowsPerPage: 25}));
+        dispatch(addPageSetAction({key: TABLE_KEY, rowsPerPage: LocalStore.getItem(CURRENT_PRINT_ROWS) || 25}));
     }, []);
 
     const onResetFilter = () => {
@@ -52,9 +57,22 @@ const ManifestPrintList: React.FC = () => {
         setSalesOrderNo('');
     }
 
+    const onChangeRowsPerPage = (value: number) => {
+        LocalStore.setItem(CURRENT_PRINT_ROWS, value);
+    }
+
+    const totals = [
+        totalsReducer(filteredList, "Sub-Total"),
+        totalsReducer(list, "Manifest Total")
+    ];
+
+    const onSelect = (row: ManifestEntry) => {
+        dispatch(selectEntryAction(row));
+    }
+
     return (
         <div>
-            <form className="mb-3 row g-3">
+            <div className="mb-3 row g-3 wo--manifest-filter">
                 <div className="col-auto">
                     <InputGroup bsSize="sm">
                         <div className="input-group-text">WO #</div>
@@ -88,27 +106,31 @@ const ManifestPrintList: React.FC = () => {
                             className="btn btn-sm mx-1 btn-outline-secondary">Reset
                     </button>
                 </div>
-            </form>
+            </div>
 
-            <SortableTable tableKey={TABLE_KEY} keyField={entryLineKey} fields={tableFields} data={[]}>
+            <SortableTable tableKey={TABLE_KEY} keyField={entryLineKey} fields={tableFields} data={[]}
+                           onSelectRow={onSelect}>
                 <tbody>
                 <ErrorBoundary>
                     {pagedList.map(row => {
                         if (!row.Comment) {
-                            return <SortableTR key={row.id} fields={tableFields} row={row}/>
+                            return <SortableTR key={row.id} fields={tableFields} row={row}
+                                               onClick={() => onSelect(row)}/>
                         }
                         return (
                             <Fragment key={row.id}>
-                                <SortableTR key={row.id} fields={tableFields} row={row} className="has-comment"/>
-                                <SortableTR key={`C-${row.id}`} fields={commentFields} row={row}/>
+                                <SortableTR key={row.id} fields={tableFields} row={row} className="has-comment"
+                                            onClick={() => onSelect(row)}/>
+                                <SortableTR key={`C-${row.id}`} fields={commentFields} row={row}
+                                            onClick={() => onSelect(row)}/>
                             </Fragment>
                         )
                     })}
                 </ErrorBoundary>
                 </tbody>
-                <ManifestTotalTFoot />
+                <ManifestTotalTFoot totals={totals}/>
             </SortableTable>
-            <PagerDuck pageKey={TABLE_KEY} dataLength={list.length}/>
+            <PagerDuck pageKey={TABLE_KEY} dataLength={list.length} onChangeRowsPerPage={onChangeRowsPerPage}/>
         </div>
     )
 }

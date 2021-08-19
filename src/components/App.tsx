@@ -14,7 +14,7 @@ const tabs: Tab[] = [
     {id: 'lookup', title: 'Manifest Lookup'},
 ];
 
-const TAB_KEY = 'app';
+const TAB_KEY = 'wo-shipping';
 
 const App: React.FC = () => {
     const dispatch = useDispatch();
@@ -30,7 +30,7 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="container">
+        <div className="container-lg">
             <AlertList/>
             <ManifestSelector/>
             <TabList tabKey={TAB_KEY} className="mt-3 mb-1" onSelectTab={onSelectTab}/>

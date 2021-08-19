@@ -15,33 +15,47 @@ import {defaultSort, listSelector, selectedEntrySelector} from "./index";
 import {selectEntryAction} from "./actions";
 import './manifest.css';
 import {commentFields, tableFields} from "./tableFields";
-import numeral from "numeral";
 import ManifestTotalTFoot from "./ManifestTotalTFoot";
+import LocalStore from "../../LocalStore";
+import {CURRENT_ENTRY_ROWS} from "../../constants";
+import {totalsReducer} from "./utils";
 
 
 const TABLE_KEY = 'manifest';
 
 const ManifestEntryList: React.FC = () => {
     const dispatch = useDispatch();
-
-
+    const today = new Date().toLocaleDateString();
     const selected = useSelector(selectedEntrySelector);
     const sort = useSelector(sortableTableSelector(TABLE_KEY))
     const list = useSelector(listSelector(sort as ManifestEntrySorterProps));
+
+    const todayList = list.filter(entry => !!entry.PackDate && new Date(entry.PackDate).toLocaleDateString() === today);
     const pagedList = useSelector(pagedDataSelector(TABLE_KEY, list));
+
     useEffect(() => {
         dispatch(tableAddedAction({key: TABLE_KEY, ...defaultSort}));
-        dispatch(addPageSetAction({key: TABLE_KEY, rowsPerPage: 10}));
+        dispatch(addPageSetAction({key: TABLE_KEY, rowsPerPage: LocalStore.getItem(CURRENT_ENTRY_ROWS) || 10}));
     }, []);
 
     const onSelect = (row: ManifestEntry) => {
         dispatch(selectEntryAction(row));
     }
 
+    const onChangeRowsPerPage = (value: number) => {
+        LocalStore.setItem(CURRENT_ENTRY_ROWS, value);
+    }
+
+    const totals = [
+        totalsReducer(todayList, "Today's Total"),
+        totalsReducer(list, "Manifest Total")
+    ];
+
     return (
         <div>
             <SortableTable tableKey={TABLE_KEY} keyField={entryLineKey} fields={tableFields} data={[]}
-                           onSelectRow={onSelect} >
+                           size="sm"
+                           onSelectRow={onSelect}>
                 <tbody>
                 <ErrorBoundary>
                     {pagedList.map(row => {
@@ -63,9 +77,9 @@ const ManifestEntryList: React.FC = () => {
                 </ErrorBoundary>
 
                 </tbody>
-                <ManifestTotalTFoot />
+                <ManifestTotalTFoot totals={totals}/>
             </SortableTable>
-            <PagerDuck pageKey={TABLE_KEY} dataLength={list.length}/>
+            <PagerDuck pageKey={TABLE_KEY} dataLength={list.length} onChangeRowsPerPage={onChangeRowsPerPage}/>
         </div>
     )
 }

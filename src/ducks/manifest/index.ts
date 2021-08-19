@@ -12,6 +12,7 @@ export const newEntry:ManifestEntry = {
     Company: 'chums',
     ShipDate: '',
     QuantityShipped: 0,
+    QuantityOrdered: 0,
     WorkOrderNo: '',
 }
 
@@ -115,6 +116,15 @@ const selectedReducer = (state:ManifestEntry = defaultState.selected, action:Man
             return {
                 ...state,
                 ...payload.change,
+            }
+        }
+        return state;
+    case loadWorkOrderSucceeded:
+        if (payload?.workOrder) {
+            return {
+                ...state,
+                QuantityOrdered: payload.workOrder.QtyOrdered,
+                WorkOrderNo: payload.workOrder.WorkOrder,
             }
         }
         return state;

@@ -39,13 +39,16 @@ const EntryForm: React.FC = () => {
     const onChangeQty = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({QuantityShipped: Number(ev.target.value || 0)}))
     const onChangeComment = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({Comment: ev.target.value}))
     const onLoadWorkOrder = () => dispatch(fetchWorkOrderAction(entry.WorkOrderNo));
+    const woRef = createRef<HTMLInputElement>();
 
     const onSubmit = (ev: FormEvent) => {
+        ev.preventDefault();
         if (readOnly) {
             return;
         }
         ev.preventDefault();
         dispatch(saveEntryAction(entry));
+        woRef.current?.focus();
     }
 
     const onNewWorkOrder = () => {
@@ -63,9 +66,9 @@ const EntryForm: React.FC = () => {
         if (window.confirm('Are you sure you want to delete this entry?')) {
             dispatch(deleteEntryAction(entry));
         }
+        woRef.current?.focus();
     }
 
-    const woRef = createRef<HTMLInputElement>();
 
     const inputDate = (date?: string) => !date ? '' : formatDate(new Date(date), 'yyyy-MM-dd');
 
@@ -74,13 +77,15 @@ const EntryForm: React.FC = () => {
         <form className="mb-3" onSubmit={onSubmit}>
             <FormColumn width={10} label="Ship Date">
                 <div className="row g-3">
-                    <div className="col-3">
-                        <Input type="date" value={inputDate(entry.ShipDate)} onChange={onChangeShipDate}
-                               readOnly={readOnly}/>
+                    <div className="col-lg-3 col-5">
+                        <InputGroup bsSize="sm">
+                            <Input type="date" value={inputDate(entry.ShipDate)} onChange={onChangeShipDate}
+                                   readOnly={readOnly}/>
+                            <div className="input-group-text">{entry.ShipDate ? new Date(entry.ShipDate).toLocaleDateString(undefined, {weekday: 'short'}) : 'N/A'}</div>
+                        </InputGroup>
                     </div>
-                    <div className="col-2"/>
-                    <label className="col-3">Due</label>
-                    <div className="col-4">
+                    <label className="col-2 text-end">Due</label>
+                    <div className="col-lg-6 col-5">
                         {!!workOrder?.WODueDate && (
                             <strong>{formatDate(parseISO(workOrder.WODueDate), 'dd MMM yyyy')}</strong>
                         )}
@@ -89,35 +94,35 @@ const EntryForm: React.FC = () => {
             </FormColumn>
             <FormColumn width={10} label="Work Order #">
                 <div className="row g-3">
-                    <div className="col-3">
+                    <div className="col-lg-3 col-5">
                         <div className="input-group input-group-sm">
                             <InputGroup bsSize="sm">
-                                <Input type="text" value={entry.WorkOrderNo} onChange={onChangeWorkOrder}
-                                       myRef={woRef} readOnly={readOnly}/>
-                                <SpinnerButton spinning={workOrderLoading} onClick={onLoadWorkOrder} type="button">
+                                <Input type="text" value={entry.WorkOrderNo || ''} onChange={onChangeWorkOrder}
+                                       placeholder="WO #"
+                                       onBlur={onLoadWorkOrder} required myRef={woRef} readOnly={readOnly} maxLength={7}/>
+                                <SpinnerButton spinning={workOrderLoading} onClick={onLoadWorkOrder} type="button" tabIndex={-1} color="secondary">
                                     <span className="bi-search"/>
                                 </SpinnerButton>
                             </InputGroup>
                         </div>
                     </div>
-                    <div className="col-2"/>
-                    <div className="col-3">Item</div>
-                    <div className="col-4">
-                        {!!workOrder?.ItemBillNumber && (
-                            <strong>{workOrder.ItemBillNumber || ''} ({workOrder.ParentWhse || ''})</strong>
+                    <div className="col-2 text-end">Item</div>
+                    <div className="col-lg-6 col-5">
+                        {!!workOrder && (
+                            <strong>{workOrder.ItemBillNumber || ''} ({workOrder.ParentWhse || 'WO Not Found'})</strong>
                         )}
                     </div>
                 </div>
             </FormColumn>
             <FormColumn width={10} label="Quantity">
                 <div className="row g-3">
-                    <div className="col-3">
+                    <div className="col-lg-3 col-5">
                         <Input type="number" value={entry.QuantityShipped} readOnly={readOnly}
+                               min={1} required
                                onChange={onChangeQty}/>
                     </div>
-                    <div className="col-2"/>
-                    <div className="col-3">Remaining {workOrder?.Status === 'C' ? '(Closed)' : ''}</div>
-                    <div className="col-4">
+                    <div className="col-2 text-end">Remaining {workOrder?.Status === 'C' ? '(Closed)' : ''}</div>
+                    <div className="col-lg-6 col-5">
                         {!!workOrder?.ItemBillNumber && (
                             <strong>{workOrder.QtyOrdered - workOrder.QtyComplete}</strong>
                         )}
@@ -127,7 +132,7 @@ const EntryForm: React.FC = () => {
             </FormColumn>
             <FormColumn width={10} label="Comment">
                 <div className="row g-3">
-                    <div className="col-6">
+                    <div className="col-lg-6 col">
                         <TextArea value={entry.Comment || ''}
                                   readOnly={readOnly}
                                   onChange={onChangeComment}/>

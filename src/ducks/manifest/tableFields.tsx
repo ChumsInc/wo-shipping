@@ -1,6 +1,17 @@
+import React from "react";
 import {ManifestTableField} from "../../types";
 import numeral from "numeral";
 import formatDate from "date-fns/format";
+
+interface CommentIconProps {
+    comment?: string
+}
+
+const CommentIcon: React.FC<CommentIconProps> = ({comment}) => {
+    return (
+        <span className={!!comment ? 'bi-chat-square-text-fill text-danger' : ''}/>
+    )
+}
 
 export const tableFields: ManifestTableField[] = [
     {field: 'id', title: 'ID', sortable: true},
@@ -26,14 +37,19 @@ export const tableFields: ManifestTableField[] = [
         field: 'PackDate',
         title: 'Packed',
         sortable: true,
-        render: (row) => formatDate(new Date(row.PackDate), 'MM/dd/yy')
+        className: 'center',
+        render: (row) => formatDate(new Date(row.PackDate), 'MM/dd')
     },
-    {field: 'ShipDate', title: 'Ship', sortable: true, render: (row) => formatDate(new Date(row.ShipDate), 'MM/dd/yy')},
+    {
+        field: 'ShipDate', title: 'Ship', sortable: true, className: 'center',
+        render: (row) => formatDate(new Date(row.ShipDate), 'MM/dd')
+    },
     {field: 'MakeFor', title: 'For', sortable: true},
+    {field: 'Comment', title: '🔔', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
 ];
 
 export const commentFields: ManifestTableField[] = [
     {field: 'id', title: 'ID', render: () => ''},
     {field: 'WorkOrderNo', title: 'Work Order', render: () => ''},
-    {field: 'Comment', title: 'Comment', colSpan: 8},
+    {field: 'Comment', title: 'Comment', colSpan: 9, className: 'text-danger'},
 ]
