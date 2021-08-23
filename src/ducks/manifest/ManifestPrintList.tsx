@@ -17,8 +17,7 @@ import {listSelector} from "./index";
 import './manifest.css';
 import {commentFields, tableFields} from "./tableFields";
 import ManifestTotalTFoot from "./ManifestTotalTFoot";
-import LocalStore from "../../LocalStore";
-import {CURRENT_PRINT_ROWS} from "../../constants";
+import LocalStore, {CURRENT_PRINT_ROWS} from "../../LocalStore";
 import {totalsReducer} from "./utils";
 import {selectEntryAction} from "./actions";
 

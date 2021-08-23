@@ -2,7 +2,6 @@ import formatDate from "date-fns/format";
 import {
     deleteManifestEntryRequested,
     deleteManifestEntrySucceeded,
-    loadingSelectedSelector,
     loadManifestEntriesFailed,
     loadManifestEntriesRequested,
     loadManifestEntriesSucceeded,
@@ -14,16 +13,15 @@ import {
     loadWorkOrderSucceeded,
     manifestEntryChanged,
     manifestEntrySelected,
-    ManifestThunkAction,
     saveManifestEntryFailed,
     saveManifestEntryRequested,
     saveManifestEntrySucceeded,
-    savingSelector
-} from "./index";
+} from "./actionTypes";
 import {loadingShipDateSelector, selectedShipDateSelector} from "../shipDates";
 import {fetchDELETE, fetchJSON, fetchPOST} from "chums-ducks";
 import {ManifestEntry, ShipDateResponse, WorkOrder} from "../../types";
 import {parseISO} from "date-fns";
+import {loadingSelectedSelector, ManifestThunkAction, savingSelector} from "./index";
 
 export const selectEntryAction = (entry: ManifestEntry): ManifestThunkAction =>
     (dispatch) => {
@@ -102,7 +100,7 @@ export const saveEntryAction = (entry: ManifestEntry): ManifestThunkAction =>
                 Comment,
             };
             await fetchPOST(url, body);
-            dispatch({type: saveManifestEntrySucceeded, payload: {}});
+            dispatch({type: saveManifestEntrySucceeded, payload: {shipDate: ShipDate}});
             dispatch(fetchManifestEntriesAction());
         } catch (err) {
             console.log("saveEntryAction()", err.message);

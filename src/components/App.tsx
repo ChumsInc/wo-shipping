@@ -5,8 +5,7 @@ import ManifestSelector from "./ManifestSelector";
 import {fetchShipDatesAction} from "../ducks/shipDates/actions";
 import EntryForm from "../ducks/manifest/EntryForm";
 import ManifestEntryList from "../ducks/manifest/ManifestEntryList";
-import LocalStore from "../LocalStore";
-import {CURRENT_TAB} from "../constants";
+import LocalStore, {CURRENT_TAB} from "../LocalStore";
 import ManifestPrintList from "../ducks/manifest/ManifestPrintList";
 
 const tabs: Tab[] = [

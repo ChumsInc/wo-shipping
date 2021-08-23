@@ -1,14 +1,17 @@
 import {fetchJSON} from 'chums-ducks';
 import {
-    loadingShipDateSelector,
     loadShipDateFailed,
     loadShipDateRequested,
-    loadShipDateSucceeded, ShipDateAction, shipDateSelected,
-    ShipDateThunkAction
-} from "./index";
+    loadShipDateSucceeded,
+    shipDateSelected,
+} from "./actionTypes";
 import {ShipDateResponse} from "../../types";
+import {loadingShipDateSelector, ShipDateAction, ShipDateThunkAction} from "./index";
 
-export const selectShipDateAction = (selected: string):ShipDateAction => ({type: shipDateSelected, payload: {selected}}) ;
+export const selectShipDateAction = (selected: string): ShipDateAction => ({
+    type: shipDateSelected,
+    payload: {selected}
+});
 
 export const fetchShipDatesAction = (): ShipDateThunkAction =>
     async (dispatch, getState) => {

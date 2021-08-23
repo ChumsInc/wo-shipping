@@ -22,7 +22,6 @@ const EntryForm: React.FC = () => {
     const workOrderLoading = useSelector(loadingWorkOrderSelector);
 
     useEffect(() => {
-        console.log({shipDate, entry});
         if (!!shipDate && entry.ShipDate !== shipDate) {
             dispatch(selectEntryAction({...newEntry, ShipDate: shipDate}));
             woRef.current?.focus();
@@ -34,7 +33,13 @@ const EntryForm: React.FC = () => {
     const shipWeek = entry.ShipDate ? formatDate(new Date(entry.ShipDate), 'yyyy-ww') : '';
     const readOnly = shipWeek < thisWeek;
 
-    const onChangeShipDate = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({ShipDate: ev.target.value}));
+    const onChangeShipDate = (ev: ChangeEvent<HTMLInputElement>) => {
+        //date from input does not have the current timezone offset
+        const value = ev.target.valueAsDate
+            ? new Date(ev.target.valueAsDate.valueOf() + new Date().getTimezoneOffset() * 60 * 1000)
+            : '';
+        dispatch(entryChangedAction({ShipDate: value}));
+    }
     const onChangeWorkOrder = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({WorkOrderNo: ev.target.value}));
     const onChangeQty = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({QuantityShipped: Number(ev.target.value || 0)}))
     const onChangeComment = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({Comment: ev.target.value}))
@@ -46,15 +51,11 @@ const EntryForm: React.FC = () => {
         if (readOnly) {
             return;
         }
-        ev.preventDefault();
         dispatch(saveEntryAction(entry));
         woRef.current?.focus();
     }
 
     const onNewWorkOrder = () => {
-        if (readOnly) {
-            return;
-        }
         dispatch(selectEntryAction({...newEntry, ShipDate: shipDate}));
         woRef.current?.focus();
     }
@@ -80,7 +81,7 @@ const EntryForm: React.FC = () => {
                     <div className="col-lg-3 col-5">
                         <InputGroup bsSize="sm">
                             <Input type="date" value={inputDate(entry.ShipDate)} onChange={onChangeShipDate}
-                                   readOnly={readOnly}/>
+                                   readOnly={!!entry.id && readOnly}/>
                             <div className="input-group-text">{entry.ShipDate ? new Date(entry.ShipDate).toLocaleDateString(undefined, {weekday: 'short'}) : 'N/A'}</div>
                         </InputGroup>
                     </div>
@@ -145,7 +146,7 @@ const EntryForm: React.FC = () => {
                         <button type="submit" className="btn btn-sm btn-primary mr-1" disabled={readOnly}>Save</button>
                     </div>
                     <div className="col-auto">
-                        <button type="button" className="btn btn-sm btn-outline-secondary mr-1" disabled={readOnly}
+                        <button type="button" className="btn btn-sm btn-outline-secondary mr-1"
                                 onClick={onNewWorkOrder}>
                             New Entry
                         </button>

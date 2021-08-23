@@ -16,8 +16,7 @@ import {selectEntryAction} from "./actions";
 import './manifest.css';
 import {commentFields, tableFields} from "./tableFields";
 import ManifestTotalTFoot from "./ManifestTotalTFoot";
-import LocalStore from "../../LocalStore";
-import {CURRENT_ENTRY_ROWS} from "../../constants";
+import LocalStore,{CURRENT_ENTRY_ROWS}  from "../../LocalStore";
 import {totalsReducer} from "./utils";
 
 

@@ -1,13 +1,47 @@
-import {combineReducers} from "redux";
-import {ManifestEntry, manifestLineSorter, ManifestEntrySorterProps, WorkOrder} from "../../types";
-import {ActionInterface} from "chums-ducks";
-import {shipDateSelected} from "../shipDates";
-import {ThunkAction} from "redux-thunk";
+import {ManifestEntry, ManifestEntrySorterProps, manifestLineSorter, WorkOrder} from "../../types";
 import {RootState} from "../index";
-import LocalStore from "../../LocalStore";
-import {CURRENT_DATE} from "../../constants";
+import {ActionInterface} from "chums-ducks";
+import {ThunkAction} from "redux-thunk";
+import {shipDateSelected} from "../shipDates/actionTypes";
+import LocalStore, {CURRENT_DATE} from "../../LocalStore";
+import {combineReducers} from "redux";
+import {
+    deleteManifestEntryFailed,
+    deleteManifestEntryRequested,
+    deleteManifestEntrySucceeded, loadManifestEntriesFailed, loadManifestEntriesRequested,
+    loadManifestEntriesSucceeded, loadManifestEntryFailed, loadManifestEntryRequested,
+    loadManifestEntrySucceeded, loadWorkOrderFailed, loadWorkOrderRequested, loadWorkOrderSucceeded,
+    manifestEntryChanged, manifestEntrySelected, saveManifestEntryFailed, saveManifestEntryRequested,
+    saveManifestEntrySucceeded
+} from "./actionTypes";
 
-export const newEntry:ManifestEntry = {
+
+export interface ManifestState {
+    list: ManifestEntry[],
+    selected: ManifestEntry,
+    workOrder: WorkOrder | null,
+    saving: boolean,
+    loading: boolean,
+    loaded: boolean,
+}
+
+export interface ManifestAction extends ActionInterface {
+    payload?: {
+        list?: ManifestEntry[],
+        entry?: ManifestEntry,
+        workOrder?: WorkOrder;
+        change?: object,
+        shipDates?: string[],
+        shipDate?: string,
+        error?: Error,
+        context?: string,
+    }
+}
+
+export interface ManifestThunkAction extends ThunkAction<any, RootState, unknown, ActionInterface> {
+}
+
+export const newEntry: ManifestEntry = {
     id: 0,
     Company: 'chums',
     ShipDate: '',
@@ -16,15 +50,7 @@ export const newEntry:ManifestEntry = {
     WorkOrderNo: '',
 }
 
-export interface ManifestState {
-    list: ManifestEntry[],
-    selected: ManifestEntry,
-    workOrder: WorkOrder|null,
-    saving: boolean,
-    loading: boolean,
-    loaded: boolean,
-}
-export const defaultState:ManifestState = {
+export const defaultState: ManifestState = {
     list: [],
     selected: newEntry,
     workOrder: null,
@@ -33,53 +59,18 @@ export const defaultState:ManifestState = {
     loaded: false,
 }
 
-export const defaultSort:ManifestEntrySorterProps = {field: 'id', ascending: false};
-
-export interface ManifestAction extends ActionInterface {
-    payload?: {
-        list?: ManifestEntry[],
-        entry?: ManifestEntry,
-        workOrder?:WorkOrder;
-        change?: object,
-        shipDates?: string[],
-        error?: Error,
-        context?: string,
-    }
-}
-export interface ManifestThunkAction extends ThunkAction<any, RootState, unknown, ActionInterface> {}
+export const defaultSort: ManifestEntrySorterProps = {field: 'id', ascending: false};
 
 
-export const loadManifestEntriesRequested = 'manifests/loadEntriesRequested';
-export const loadManifestEntriesSucceeded = 'manifests/loadEntriesSucceeded';
-export const loadManifestEntriesFailed = 'manifests/loadEntriesFailed';
 
-export const manifestEntryChanged = 'manifest/entryChanged';
-export const manifestEntrySelected = 'manifest/entrySelected';
-
-export const loadManifestEntryRequested = 'manifests/loadEntryRequested';
-export const loadManifestEntrySucceeded = 'manifests/loadEntrySucceeded';
-export const loadManifestEntryFailed = 'manifests/loadEntryFailed';
-
-export const saveManifestEntryRequested = 'manifests/saveEntryRequested';
-export const saveManifestEntrySucceeded = 'manifests/saveEntrySucceeded';
-export const saveManifestEntryFailed = 'manifests/saveEntryFailed';
-
-export const deleteManifestEntryRequested = 'manifests/deleteEntryRequested';
-export const deleteManifestEntrySucceeded = 'manifests/deleteEntrySucceeded';
-export const deleteManifestEntryFailed = 'manifests/deleteEntryFailed';
-
-export const loadWorkOrderRequested = 'manifests/loadWorkOrderRequested';
-export const loadWorkOrderSucceeded = 'manifests/loadWorkOrderSucceeded';
-export const loadWorkOrderFailed = 'manifests/loadWorkOrderFailed';
-
-export const listSelector = (sort:ManifestEntrySorterProps) => (state:RootState) => state.manifests.list.sort(manifestLineSorter(sort));
-export const selectedEntrySelector = (state:RootState) => state.manifests.selected;
-export const loadingSelectedSelector = (state:RootState) => state.manifests.loadingSelected;
-export const savingSelector = (state:RootState) => state.manifests.saving;
-export const loadingEntriesSelector = (state:RootState) => state.manifests.loading;
-export const loadedEntriesSelector = (state:RootState) => state.manifests.loaded;
-export const workOrderSelector = (state:RootState) => state.manifests.workOrder;
-export const loadingWorkOrderSelector = (state:RootState) => state.manifests.workOrderLoading;
+export const listSelector = (sort: ManifestEntrySorterProps) => (state: RootState) => state.manifests.list.sort(manifestLineSorter(sort));
+export const selectedEntrySelector = (state: RootState) => state.manifests.selected;
+export const loadingSelectedSelector = (state: RootState) => state.manifests.loadingSelected;
+export const savingSelector = (state: RootState) => state.manifests.saving;
+export const loadingEntriesSelector = (state: RootState) => state.manifests.loading;
+export const loadedEntriesSelector = (state: RootState) => state.manifests.loaded;
+export const workOrderSelector = (state: RootState) => state.manifests.workOrder;
+export const loadingWorkOrderSelector = (state: RootState) => state.manifests.workOrderLoading;
 
 
 const listReducer = (state:ManifestEntry[] = defaultState.list, action:ManifestAction):ManifestEntry[] => {
@@ -203,8 +194,6 @@ const loadedReducer = (state:boolean = defaultState.saving, action:ManifestActio
     switch (action.type) {
     case loadManifestEntriesSucceeded:
         return true;
-    case shipDateSelected:
-        return false;
     default: return state;
     }
 }
