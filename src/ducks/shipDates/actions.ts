@@ -25,8 +25,11 @@ export const fetchShipDatesAction = (): ShipDateThunkAction =>
             const {dates} = await fetchJSON(url, {cache: 'no-cache'});
             const list = dates.map((date: ShipDateResponse) => date.ShipDate);
             dispatch({type: loadShipDateSucceeded, payload: {list}});
-        } catch (err) {
-            console.log("fetchShipDates()", err.message);
-            dispatch({type: loadShipDateFailed, payload: {error: err, context: loadShipDateRequested}});
+        } catch (err:unknown) {
+            if (err instanceof Error) {
+                console.log("fetchShipDates()", err.message);
+                return dispatch({type: loadShipDateFailed, payload: {error: err, context: loadShipDateRequested}});
+            }
+            console.error(err);
         }
     };

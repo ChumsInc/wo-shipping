@@ -1,5 +1,6 @@
 import formatDate from "date-fns/format";
 import {
+    deleteManifestEntryFailed,
     deleteManifestEntryRequested,
     deleteManifestEntrySucceeded,
     loadManifestEntriesFailed,
@@ -47,9 +48,12 @@ export const fetchManifestEntriesAction = (): ManifestThunkAction =>
             const {list, shipDates} = await fetchJSON(url, {cache: "no-cache"});
             const dates = shipDates.map((date: ShipDateResponse) => date.ShipDate);
             dispatch({type: loadManifestEntriesSucceeded, payload: {list, shipDates: dates}});
-        } catch (err) {
-            console.log("fetchManifestEntriesAction()", err.message);
-            dispatch({type: loadManifestEntriesFailed, payload: {error: err, context: loadManifestEntriesRequested}});
+        } catch (err:unknown) {
+            if (err instanceof Error) {
+                console.log("fetchManifestEntriesAction()", err.message);
+                return dispatch({type: loadManifestEntriesFailed, payload: {error: err, context: loadManifestEntriesRequested}});
+            }
+            console.error(err);
         }
     };
 
@@ -74,9 +78,12 @@ export const fetchEntryAction = (id: number): ManifestThunkAction =>
                 payload.workOrder = await fetchWorkOrder(entry.WorkOrderNo);
             }
             dispatch({type: loadManifestEntrySucceeded, payload});
-        } catch (err) {
-            console.log("fetchEntryAction()", err.message);
-            dispatch({type: loadManifestEntryFailed, payload: {error: err, context: loadManifestEntryRequested}})
+        } catch (err:unknown) {
+            if (err instanceof Error) {
+                console.log("fetchEntryAction()", err.message);
+                return dispatch({type: loadManifestEntryFailed, payload: {error: err, context: loadManifestEntryRequested}})
+            }
+            console.error(err);
         }
     };
 
@@ -87,6 +94,7 @@ export const saveEntryAction = (entry: ManifestEntry): ManifestThunkAction =>
             if (savingSelector(state) || loadingShipDateSelector(state) || loadingSelectedSelector(state)) {
                 return;
             }
+            console.log(entry);
             dispatch({type: saveManifestEntryRequested});
             const {id, Company, WorkOrderNo, QuantityShipped, ShipDate, Comment} = entry;
             const url = '/api/operations/production/wo/shipping/:id'
@@ -102,9 +110,13 @@ export const saveEntryAction = (entry: ManifestEntry): ManifestThunkAction =>
             await fetchPOST(url, body);
             dispatch({type: saveManifestEntrySucceeded, payload: {shipDate: ShipDate}});
             dispatch(fetchManifestEntriesAction());
-        } catch (err) {
-            console.log("saveEntryAction()", err.message);
-            dispatch({type: saveManifestEntryFailed, payload: {error: err, context: saveManifestEntryRequested}});
+        } catch (err:unknown) {
+            if (err instanceof Error) {
+                console.log("saveEntryAction()", err.message);
+                dispatch({type: saveManifestEntryFailed, payload: {error: err, context: saveManifestEntryRequested}});
+                return;
+            }
+            console.error(err);
         }
     };
 
@@ -121,9 +133,12 @@ export const deleteEntryAction = ({id}: ManifestEntry): ManifestThunkAction =>
             await fetchDELETE(url)
             dispatch({type: deleteManifestEntrySucceeded});
             dispatch(fetchManifestEntriesAction());
-        } catch (err) {
-            console.log("deleteEntryAction()", err.message);
-            return Promise.reject(err);
+        } catch (err:unknown) {
+            if (err instanceof Error) {
+                console.log("deleteEntryAction()", err.message);
+                return dispatch({type: deleteManifestEntryFailed, payload: {error: err, context: deleteManifestEntryRequested}});
+            }
+            console.error(err);
         }
     };
 
@@ -137,9 +152,12 @@ async function fetchWorkOrder(WorkOrderNo: string) {
             .replace(':WorkOrderNo', encodeURIComponent(WorkOrderNo.padStart(7, '0')));
         const {workorder} = await fetchJSON(urlWorkOrder, {cache: 'no-cache'});
         return workorder;
-    } catch (err) {
-        console.log("fetchWorkOrder()", err.message);
-        return Promise.reject(err);
+    } catch (err:unknown) {
+        if (err instanceof Error) {
+            console.log("fetchWorkOrder()", err.message);
+            return Promise.reject(err);
+        }
+        console.error(err);
     }
 }
 
@@ -152,8 +170,11 @@ export const fetchWorkOrderAction = (WorkOrderNo: string): ManifestThunkAction =
             dispatch({type: loadWorkOrderRequested});
             const workOrder = await fetchWorkOrder(WorkOrderNo);
             dispatch({type: loadWorkOrderSucceeded, payload: {workOrder: workOrder || null}});
-        } catch (err) {
-            console.log("fetchWorkOrderAction()", err.message);
-            dispatch({type: loadWorkOrderFailed, payload: {error: err, context: loadWorkOrderRequested}});
+        } catch (err:unknown) {
+            if (err instanceof Error) {
+                console.log("fetchWorkOrderAction()", err.message);
+                return dispatch({type: loadWorkOrderFailed, payload: {error: err, context: loadWorkOrderRequested}});
+            }
+            console.error(err);
         }
     };

@@ -36,7 +36,7 @@ const EntryForm: React.FC = () => {
     const onChangeShipDate = (ev: ChangeEvent<HTMLInputElement>) => {
         //date from input does not have the current timezone offset
         const value = ev.target.valueAsDate
-            ? new Date(ev.target.valueAsDate.valueOf() + new Date().getTimezoneOffset() * 60 * 1000)
+            ? new Date(ev.target.valueAsDate.valueOf() + new Date().getTimezoneOffset() * 60 * 1000).toISOString()
             : '';
         dispatch(entryChangedAction({ShipDate: value}));
     }

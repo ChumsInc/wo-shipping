@@ -9,8 +9,10 @@ export default class LocalStore {
         const data = window.localStorage.getItem(key);
         try {
             return !data ? null : JSON.parse(data);
-        } catch(err) {
-            console.log("getItem()", key, err.message);
+        } catch(err:unknown) {
+            if (err instanceof Error) {
+                console.log("getItem()", key, err.message);
+            }
             return data;
         }
     }
