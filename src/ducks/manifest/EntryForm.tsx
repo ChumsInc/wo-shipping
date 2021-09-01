@@ -99,7 +99,7 @@ const EntryForm: React.FC = () => {
                         <div className="input-group input-group-sm">
                             <InputGroup bsSize="sm">
                                 <Input type="text" value={entry.WorkOrderNo || ''} onChange={onChangeWorkOrder}
-                                       placeholder="WO #"
+                                       placeholder="WO #" wait={100}
                                        onBlur={onLoadWorkOrder} required myRef={woRef} readOnly={readOnly} maxLength={7}/>
                                 <SpinnerButton spinning={workOrderLoading} onClick={onLoadWorkOrder} type="button" tabIndex={-1} color="secondary">
                                     <span className="bi-search"/>
@@ -118,7 +118,7 @@ const EntryForm: React.FC = () => {
             <FormColumn width={10} label="Quantity">
                 <div className="row g-3">
                     <div className="col-lg-3 col-5">
-                        <Input type="number" value={entry.QuantityShipped} readOnly={readOnly}
+                        <Input type="number" value={entry.QuantityShipped || ''} readOnly={readOnly} wait={0}
                                min={1} required
                                onChange={onChangeQty}/>
                     </div>

@@ -31,7 +31,9 @@ module.exports = merge(common, {
     },
     plugins: [
         new CleanWebpackPlugin(),
-        new WebpackManifestPlugin(),
+        new WebpackManifestPlugin({
+            filter: (file) => !file.path.includes('dist') && !file.name.includes('.map'),
+        }),
         new BundleAnalyzerPlugin(),
     ]
 });
