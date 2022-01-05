@@ -7,6 +7,7 @@ export interface ManifestEntry {
     WarehouseCode?: string,
     ItemCode?: string,
     ItemCodeDesc?: string,
+    BinLocation?: string,
     BoxNo?: number,
     QuantityShipped: number,
     QuantityOrdered: number,

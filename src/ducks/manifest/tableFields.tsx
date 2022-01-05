@@ -45,11 +45,12 @@ export const tableFields: ManifestTableField[] = [
         render: (row) => formatDate(new Date(row.ShipDate), 'MM/dd')
     },
     {field: 'MakeFor', title: 'For', sortable: true},
+    {field: 'BinLocation', title: 'Bin Location', sortable: true},
     {field: 'Comment', title: '🔔', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
 ];
 
 export const commentFields: ManifestTableField[] = [
     {field: 'id', title: 'ID', render: () => ''},
     {field: 'WorkOrderNo', title: 'Work Order', render: () => ''},
-    {field: 'Comment', title: 'Comment', colSpan: 9, className: 'text-danger'},
+    {field: 'Comment', title: 'Comment', colSpan: 10, className: 'text-danger'},
 ]
