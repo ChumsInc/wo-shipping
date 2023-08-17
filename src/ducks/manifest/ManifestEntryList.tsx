@@ -12,11 +12,11 @@ import {
     tableAddedAction
 } from 'chums-ducks';
 import {defaultSort, listSelector, selectedEntrySelector} from "./index";
-import {selectEntryAction} from "./actions";
+import {setCurrentEntry} from "./actions";
 import './manifest.css';
 import {commentFields, tableFields} from "./tableFields";
 import ManifestTotalTFoot from "./ManifestTotalTFoot";
-import LocalStore,{CURRENT_ENTRY_ROWS}  from "../../LocalStore";
+import LocalStore, {CURRENT_ENTRY_ROWS} from "../../LocalStore";
 import {totalsReducer} from "./utils";
 
 
@@ -38,7 +38,7 @@ const ManifestEntryList: React.FC = () => {
     }, []);
 
     const onSelect = (row: ManifestEntry) => {
-        dispatch(selectEntryAction(row));
+        dispatch(setCurrentEntry(row));
     }
 
     const onChangeRowsPerPage = (value: number) => {

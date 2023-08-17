@@ -1,7 +1,8 @@
 import React from "react";
-import {ManifestTableField} from "../../types";
+import {ManifestEntry} from "../../types";
 import numeral from "numeral";
 import formatDate from "date-fns/format";
+import {SortableTableField} from "chums-components";
 
 interface CommentIconProps {
     comment?: string
@@ -13,7 +14,7 @@ const CommentIcon: React.FC<CommentIconProps> = ({comment}) => {
     )
 }
 
-export const tableFields: ManifestTableField[] = [
+export const tableFields: SortableTableField<ManifestEntry>[] = [
     {field: 'id', title: 'ID', sortable: true},
     {field: 'WorkOrderNo', title: 'Work Order', sortable: true},
     {field: 'WarehouseCode', title: 'Whse', sortable: true},
@@ -38,7 +39,7 @@ export const tableFields: ManifestTableField[] = [
         title: 'Packed',
         sortable: true,
         className: 'center',
-        render: (row) => formatDate(new Date(row.PackDate), 'MM/dd')
+        render: (row) => !row.PackDate ? null : formatDate(new Date(row.PackDate), 'MM/dd'),
     },
     {
         field: 'ShipDate', title: 'Ship', sortable: true, className: 'center',
@@ -48,7 +49,7 @@ export const tableFields: ManifestTableField[] = [
     {field: 'Comment', title: '🔔', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
 ];
 
-export const commentFields: ManifestTableField[] = [
+export const commentFields: SortableTableField<ManifestEntry>[] = [
     {field: 'id', title: 'ID', render: () => ''},
     {field: 'WorkOrderNo', title: 'Work Order', render: () => ''},
     {field: 'Comment', title: 'Comment', colSpan: 9, className: 'text-danger'},

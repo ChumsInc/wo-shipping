@@ -1,36 +1,39 @@
-import React, {ChangeEvent, createRef, FormEvent, useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React, {ChangeEvent, createRef, FormEvent, useEffect, useState} from 'react';
+import {useSelector} from 'react-redux';
 import formatDate from "date-fns/format";
 import parseISO from "date-fns/parseISO";
-import {loadingWorkOrderSelector, newEntry, selectedEntrySelector, workOrderSelector} from "./index";
-import {
-    deleteEntryAction,
-    entryChangedAction,
-    fetchWorkOrderAction,
-    saveEntryAction,
-    selectEntryAction
-} from "./actions";
+import {loadingWorkOrderSelector, newEntry, workOrderSelector} from "./index";
+import {entryChangedAction, loadWorkOrder, removeManifestEntry, saveManifestEntry, setCurrentEntry} from "./actions";
 import {Alert, FormColumn, Input, InputGroup, SpinnerButton, TextArea} from "chums-ducks";
-import {selectedShipDateSelector} from "../shipDates";
+import {selectCurrentShipDate} from "../shipDates";
+import {useAppDispatch} from "../../app/configureStore";
+import {selectCurrentEntry} from "./selectors";
+import {ManifestEntry} from "../../types";
+import {Editable} from "chums-types/src/generics";
+import dayjs from "dayjs";
 
 
 const EntryForm: React.FC = () => {
-    const dispatch = useDispatch();
-    const shipDate = useSelector(selectedShipDateSelector);
-    const entry = useSelector(selectedEntrySelector);
+    const dispatch = useAppDispatch();
+    const shipDate = useSelector(selectCurrentShipDate);
+    const currentEntry = useSelector(selectCurrentEntry);
     const workOrder = useSelector(workOrderSelector);
-    const workOrderLoading = useSelector(loadingWorkOrderSelector);
+    const workOrderLoading = useSelector(selec);
+    const woRef = createRef<HTMLInputElement>();
 
+    const [entry, setEntry] = useState<(ManifestEntry & Editable) | null>(null);
     useEffect(() => {
-        if (!!shipDate && entry.ShipDate !== shipDate) {
-            dispatch(selectEntryAction({...newEntry, ShipDate: shipDate}));
-            woRef.current?.focus();
+        if (!!shipDate && currentEntry?.ShipDate !== shipDate) {
+            setEntry({...newEntry, ShipDate: shipDate});
+        } else {
+            setEntry(currentEntry);
         }
-    }, [shipDate]);
+        woRef.current?.focus();
+    }, [shipDate, currentEntry]);
 
 
     const thisWeek = formatDate(new Date(), 'yyyy-ww');
-    const shipWeek = entry.ShipDate ? formatDate(new Date(entry.ShipDate), 'yyyy-ww') : '';
+    const shipWeek = formatDate(parseISO(shipDate ?? ''), 'yyyy-ww');
     const readOnly = shipWeek < thisWeek;
 
     const onChangeShipDate = (ev: ChangeEvent<HTMLInputElement>) => {
@@ -40,32 +43,54 @@ const EntryForm: React.FC = () => {
             : '';
         dispatch(entryChangedAction({ShipDate: value}));
     }
-    const onChangeWorkOrder = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({WorkOrderNo: ev.target.value}));
-    const onChangeQty = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({QuantityShipped: Number(ev.target.value || 0)}))
-    const onChangeComment = (ev: ChangeEvent<HTMLInputElement>) => dispatch(entryChangedAction({Comment: ev.target.value}))
-    const onLoadWorkOrder = () => dispatch(fetchWorkOrderAction(entry.WorkOrderNo));
-    const woRef = createRef<HTMLInputElement>();
+
+    const onChangeWorkOrder = (ev: ChangeEvent<HTMLInputElement>) => {
+        if (!entry) {
+            return;
+        }
+        setEntry({...entry, WorkOrderNo: ev.target.value, changed: true});
+    }
+
+    const onChangeQty = (ev: ChangeEvent<HTMLInputElement>) => {
+        if (!entry) {
+            return;
+        }
+        setEntry({...entry, QuantityShipped: Number(ev.target.value || 0), changed: true});
+    }
+    const onChangeComment = (ev: ChangeEvent<HTMLInputElement>) => {
+        if (!entry) {
+            return;
+        }
+        setEntry({...entry, Comment: ev.target.value, changed: true});
+    }
+    const onLoadWorkOrder = () => {
+        if (!entry || !entry.WorkOrderNo) {
+            return;
+        }
+        dispatch(loadWorkOrder(entry.WorkOrderNo));
+    }
+
 
     const onSubmit = (ev: FormEvent) => {
         ev.preventDefault();
-        if (readOnly) {
+        if (readOnly || !entry) {
             return;
         }
-        dispatch(saveEntryAction(entry));
+        dispatch(saveManifestEntry(entry));
         woRef.current?.focus();
     }
 
     const onNewWorkOrder = () => {
-        dispatch(selectEntryAction({...newEntry, ShipDate: shipDate}));
+        setCurrentEntry({...newEntry, ShipDate: shipDate});
         woRef.current?.focus();
     }
 
     const onConfirmDelete = () => {
-        if (readOnly) {
+        if (readOnly || !entry) {
             return;
         }
         if (window.confirm('Are you sure you want to delete this entry?')) {
-            dispatch(deleteEntryAction(entry));
+            dispatch(removeManifestEntry(entry));
         }
         woRef.current?.focus();
     }
@@ -82,7 +107,8 @@ const EntryForm: React.FC = () => {
                         <InputGroup bsSize="sm">
                             <Input type="date" value={inputDate(entry.ShipDate)} onChange={onChangeShipDate}
                                    readOnly={!!entry.id && readOnly}/>
-                            <div className="input-group-text">{entry.ShipDate ? new Date(entry.ShipDate).toLocaleDateString(undefined, {weekday: 'short'}) : 'N/A'}</div>
+                            <div
+                                className="input-group-text">{entry.ShipDate ? new Date(entry.ShipDate).toLocaleDateString(undefined, {weekday: 'short'}) : 'N/A'}</div>
                         </InputGroup>
                     </div>
                     <label className="col-2 text-end">Due</label>
@@ -100,8 +126,10 @@ const EntryForm: React.FC = () => {
                             <InputGroup bsSize="sm">
                                 <Input type="text" value={entry.WorkOrderNo || ''} onChange={onChangeWorkOrder}
                                        placeholder="WO #" wait={100}
-                                       onBlur={onLoadWorkOrder} required myRef={woRef} readOnly={readOnly} maxLength={7}/>
-                                <SpinnerButton spinning={workOrderLoading} onClick={onLoadWorkOrder} type="button" tabIndex={-1} color="secondary">
+                                       onBlur={onLoadWorkOrder} required myRef={woRef} readOnly={readOnly}
+                                       maxLength={7}/>
+                                <SpinnerButton spinning={workOrderLoading} onClick={onLoadWorkOrder} type="button"
+                                               tabIndex={-1} color="secondary">
                                     <span className="bi-search"/>
                                 </SpinnerButton>
                             </InputGroup>

@@ -1,21 +1,23 @@
 import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import ShipDateSelect from "../ducks/shipDates/ShipDateSelect";
-import {SpinnerButton} from "chums-ducks";
-import {loadingEntriesSelector} from "../ducks/manifest";
-import {fetchManifestEntriesAction} from "../ducks/manifest/actions";
-import {selectedShipDateSelector} from "../ducks/shipDates";
+import {SpinnerButton} from "chums-components";
+import {loadManifestEntries} from "../ducks/manifest/actions";
+import {selectCurrentShipDate} from "../ducks/shipDates";
+import {useAppDispatch} from "../app/configureStore";
+import {selectManifestLoading} from "../ducks/manifest/selectors";
 
 const ManifestSelector: React.FC = () => {
-    const dispatch = useDispatch();
-    const shipDate = useSelector(selectedShipDateSelector);
-    const loading = useSelector(loadingEntriesSelector);
+    const dispatch = useAppDispatch();
+    const shipDate = useSelector(selectCurrentShipDate);
+    const loading = useSelector(selectManifestLoading);
 
     useEffect(() => {
-        dispatch(fetchManifestEntriesAction());
+        dispatch(loadManifestEntries(shipDate));
     }, [shipDate])
 
-    const clickHandler = () => dispatch(fetchManifestEntriesAction());
+    const clickHandler = () => dispatch(loadManifestEntries(shipDate));
+
     return (
         <div className="row g-3">
             <div className="col-auto">

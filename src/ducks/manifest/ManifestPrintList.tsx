@@ -19,7 +19,7 @@ import {commentFields, tableFields} from "./tableFields";
 import ManifestTotalTFoot from "./ManifestTotalTFoot";
 import LocalStore, {CURRENT_PRINT_ROWS} from "../../LocalStore";
 import {totalsReducer} from "./utils";
-import {selectEntryAction} from "./actions";
+import {setCurrentEntry} from "./actions";
 
 const TABLE_KEY = 'print-manifest';
 
@@ -66,7 +66,7 @@ const ManifestPrintList: React.FC = () => {
     ];
 
     const onSelect = (row: ManifestEntry) => {
-        dispatch(selectEntryAction(row));
+        dispatch(setCurrentEntry(row));
     }
 
     return (

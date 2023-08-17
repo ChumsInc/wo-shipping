@@ -5,19 +5,19 @@ export const CURRENT_DATE = 'com.chums.intranet.wo-manifest.current-date';
 
 
 export default class LocalStore {
-    static getItem(key:string) {
+    static getItem<T = any>(key:string, defaultValue: T|null):T|null {
         const data = window.localStorage.getItem(key);
         try {
-            return !data ? null : JSON.parse(data);
+            return !data ? null : JSON.parse(data) as T;
         } catch(err:unknown) {
             if (err instanceof Error) {
                 console.log("getItem()", key, err.message);
             }
-            return data;
+            return null;
         }
     }
 
-    static setItem(key:string, data:any) {
+    static setItem<T = any>(key:string, data:T) {
         window.localStorage.setItem(key, JSON.stringify(data));
     }
 

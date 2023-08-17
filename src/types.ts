@@ -80,3 +80,13 @@ export interface TextInputChangeProps {
     field: ManifestEntryField;
     value: string;
 }
+
+export interface LoadManifestResponse {
+    list: ManifestEntry[];
+    shipDates: ShipDateResponse[];
+}
+
+export interface ManifestEntryResponse {
+    entry:ManifestEntry;
+    workOrder: WorkOrder|null;
+}
