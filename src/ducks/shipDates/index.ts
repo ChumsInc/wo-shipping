@@ -1,4 +1,4 @@
-import store, {RootState} from "../../app/configureStore";
+import {RootState} from "../../app/configureStore";
 import LocalStore, {CURRENT_DATE} from "../../LocalStore";
 import {createAction, createAsyncThunk, createReducer} from "@reduxjs/toolkit";
 import {loadManifestEntries, saveManifestEntry} from "../manifest/actions";
@@ -19,8 +19,8 @@ export const initialShipDatesState: ShipDatesState = {
     loaded: false,
 }
 
-export const setCurrentShipDate = createAction('shipDates/setCurrent', (value:string|null) => {
-    LocalStore.setItem<string|null>(CURRENT_DATE, value);
+export const setCurrentShipDate = createAction('shipDates/setCurrent', (value: string | null) => {
+    LocalStore.setItem<string | null>(CURRENT_DATE, value);
     return {
         payload: value
     };
@@ -39,8 +39,8 @@ export const loadShipDates = createAsyncThunk<ShipDateResponse[]>(
 
 export const selectShipDates = (state: RootState) => state.shipDates.list;
 export const selectCurrentShipDate = (state: RootState) => state.shipDates.current;
-export const selectShipDatesLoading = (state:RootState) => state.shipDates.loading;
-export const selectShipDatesLoaded = (state:RootState) => state.shipDates.loaded;
+export const selectShipDatesLoading = (state: RootState) => state.shipDates.loading;
+export const selectShipDatesLoaded = (state: RootState) => state.shipDates.loaded;
 
 const shipDatesReducer = createReducer(initialShipDatesState, builder => {
     builder

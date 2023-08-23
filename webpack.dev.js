@@ -1,7 +1,6 @@
 const {merge} = require('webpack-merge');
-const webpack = require('webpack');
 const common = require('./webpack.common.js');
-const path = require('path');
+const path = require('node:path');
 
 const localProxy = {
     target: 'http://localhost:8081',

@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import ManifestSelector from "../ducks/manifest/ManifestSelector";
 import EntryForm from "../ducks/manifest/EntryForm";
 import ManifestEntryList from "../ducks/manifest/ManifestEntryList";
 import LocalStore, {CURRENT_TAB} from "../LocalStore";
@@ -15,8 +14,6 @@ const tabs: Tab[] = [
     {id: 'entry', title: 'Shipping Entry'},
     {id: 'lookup', title: 'Manifest Lookup'},
 ];
-
-const TAB_KEY = 'wo-shipping';
 
 const App: React.FC = () => {
     const dispatch = useAppDispatch();

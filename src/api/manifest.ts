@@ -82,7 +82,7 @@ export async function postManifestEntry(arg: WOManifestEntry): Promise<LoadManif
             ItemCode,
             WarehouseCode,
             QuantityShipped,
-            ShipDate: dayjs(arg.ShipDate).format('YYYY-MM-DD'),
+            ShipDate: dayjs(ShipDate).format('YYYY-MM-DD'),
             Comment,
         };
         await fetchJSON(url, {method: 'post', body: JSON.stringify(body)});

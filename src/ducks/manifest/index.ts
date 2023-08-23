@@ -72,7 +72,7 @@ export const initialManifestState: ManifestState = {
 
 const manifestReducer = createReducer(initialManifestState, builder => {
     builder
-        .addCase(loadManifestEntries.pending, (state, action) => {
+        .addCase(loadManifestEntries.pending, (state) => {
             state.list.loading = true;
         })
         .addCase(loadManifestEntries.fulfilled, (state, action) => {

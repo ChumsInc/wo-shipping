@@ -58,7 +58,7 @@ export const setSearch = createAction<Partial<HistorySearch>>('history/setSearch
 export const setHistorySort = createAction<SortProps<WOManifestEntryItem>>('history/setSort');
 export const loadSearch = createAsyncThunk<WOManifestEntryItem[], HistorySearch>(
     'history/load',
-    async (arg, {getState}) => {
+    async (arg) => {
         return await fetchManifestEntrySearch(arg)
     },
     {
