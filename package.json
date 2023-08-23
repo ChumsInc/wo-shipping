@@ -6,8 +6,13 @@
     "build": "webpack --config webpack.prod.js --progress --env production"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/base": "^5.0.0-beta.11",
+    "@mui/material": "^5.14.5",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/numeral": "^2.0.1",
+    "@types/react-dom": "^18.2.7",
     "chums-components": "github:UtahGooner/chums-components",
     "chums-types": "github:UtahGooner/chums-types",
     "classnames": "^2.2.6",

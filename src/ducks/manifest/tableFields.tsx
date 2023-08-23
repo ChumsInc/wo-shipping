@@ -1,20 +1,26 @@
 import React from "react";
-import {ManifestEntry} from "../../types";
 import numeral from "numeral";
 import formatDate from "date-fns/format";
 import {SortableTableField} from "chums-components";
+import {WOManifestEntryItem} from "chums-types";
+import Tooltip from '@mui/material/Tooltip';
 
 interface CommentIconProps {
     comment?: string
 }
 
-const CommentIcon: React.FC<CommentIconProps> = ({comment}) => {
+const CommentIcon = ({comment}:CommentIconProps) => {
+    if (!comment) {
+        return null;
+    }
     return (
-        <span className={!!comment ? 'bi-chat-square-text-fill text-danger' : ''}/>
+        <Tooltip title={comment}>
+            <span className={!!comment ? 'bi-chat-square-text-fill text-danger' : ''}/>
+        </Tooltip>
     )
 }
 
-export const tableFields: SortableTableField<ManifestEntry>[] = [
+export const tableFields: SortableTableField<WOManifestEntryItem>[] = [
     {field: 'id', title: 'ID', sortable: true},
     {field: 'WorkOrderNo', title: 'Work Order', sortable: true},
     {field: 'WarehouseCode', title: 'Whse', sortable: true},
@@ -46,11 +52,12 @@ export const tableFields: SortableTableField<ManifestEntry>[] = [
         render: (row) => formatDate(new Date(row.ShipDate), 'MM/dd')
     },
     {field: 'MakeFor', title: 'For', sortable: true},
+    {field: 'BinLocation', title: 'Bin Location', sortable: true},
     {field: 'Comment', title: '🔔', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
 ];
 
-export const commentFields: SortableTableField<ManifestEntry>[] = [
+export const commentFields: SortableTableField<WOManifestEntryItem>[] = [
     {field: 'id', title: 'ID', render: () => ''},
     {field: 'WorkOrderNo', title: 'Work Order', render: () => ''},
-    {field: 'Comment', title: 'Comment', colSpan: 9, className: 'text-danger'},
+    {field: 'Comment', title: 'Comment', colSpan: 10, className: 'text-danger'},
 ]

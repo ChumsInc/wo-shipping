@@ -1,49 +1,29 @@
-import React, {ChangeEvent, useEffect} from "react";
-import {Select} from "chums-components";
-import {useSelector} from "react-redux";
-import {
-    loadShipDates,
-    selectCurrentShipDate,
-    selectShipDates,
-    selectShipDatesLoaded,
-    selectShipDatesLoading,
-    setCurrentShipDate
-} from "./index";
-import {useAppDispatch} from "../../app/configureStore";
+import React, {SelectHTMLAttributes} from "react";
+import classNames from "classnames";
 
 export interface ShipDateOption {
     date: string,
 }
 
-const ShipDateOption: React.FC<ShipDateOption> = ({date}) => {
+const ShipDateOption = ({date}: ShipDateOption) => {
     const d = new Date(date);
     return (
         <option value={date}>{d.toLocaleDateString()}</option>
     )
 }
 
-const ShipDateSelect: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const list = useSelector(selectShipDates);
-    const value = useSelector(selectCurrentShipDate);
-    const loading = useSelector(selectShipDatesLoading);
-    const loaded = useSelector(selectShipDatesLoaded);
+export interface ShipDateSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+    defaultLabel?: string;
+    values: string[]
+}
 
-    useEffect(() => {
-        if (!loaded && !loading) {
-            dispatch(loadShipDates());
-        }
-    }, [loaded, loading]);
-
-    const onChange = (ev: ChangeEvent<HTMLSelectElement>) => {
-        dispatch(setCurrentShipDate(ev.target.value));
-    }
+const ShipDateSelect = ({defaultLabel = 'Select Ship Date', className, values = [], ...rest}: ShipDateSelectProps) => {
     return (
-        <Select value={value ?? ''} onChange={onChange} bsSize="sm">
-            <option value="">Select Ship Date</option>
+        <select className={classNames(className, "form-select form-select-sm")} {...rest}>
+            <option value="">{defaultLabel}</option>
             <option disabled>---</option>
-            {list.map(date => (<ShipDateOption date={date} key={date}/>))}
-        </Select>
+            {values.map(date => (<ShipDateOption date={date} key={date}/>))}
+        </select>
     )
 }
 

@@ -4,9 +4,11 @@ import alertsReducer from "../ducks/alerts";
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import manifestReducer from "../ducks/manifest";
 import shipDatesReducer from "../ducks/shipDates";
+import historyReducer from "../ducks/history";
 
 const rootReducer = combineReducers({
     alerts: alertsReducer,
+    history: historyReducer,
     manifest: manifestReducer,
     shipDates: shipDatesReducer,
 })

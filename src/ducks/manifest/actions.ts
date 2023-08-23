@@ -1,4 +1,4 @@
-import {LoadManifestResponse, ManifestEntry, ManifestEntryResponse, WorkOrder} from "../../types";
+import {LoadManifestResponse, ManifestEntryResponse, WorkOrder} from "../../types";
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 import {RootState} from "../../app/configureStore";
 import {selectCurrentSaving, selectManifestLoading} from "./selectors";
@@ -11,8 +11,10 @@ import {
     postManifestEntry
 } from "../../api/manifest";
 import {SortProps} from "chums-components";
+import {WOManifestEntry} from "chums-types/src/work-order";
+import {WOManifestEntryItem} from "chums-types";
 
-export const setCurrentEntry = createAction<ManifestEntry>('manifest/current/setEntry');
+export const setCurrentEntry = createAction<WOManifestEntry>('manifest/current/setEntry');
 
 export const loadManifestEntries = createAsyncThunk<LoadManifestResponse, string>(
     'manifest/list/load',
@@ -27,7 +29,7 @@ export const loadManifestEntries = createAsyncThunk<LoadManifestResponse, string
     }
 )
 
-export const saveManifestEntry = createAsyncThunk<LoadManifestResponse, ManifestEntry>(
+export const saveManifestEntry = createAsyncThunk<LoadManifestResponse, WOManifestEntry>(
     'manifest/current/save',
     async (arg) => {
         return await postManifestEntry(arg);
@@ -39,7 +41,7 @@ export const saveManifestEntry = createAsyncThunk<LoadManifestResponse, Manifest
     }
 )
 
-export const removeManifestEntry = createAsyncThunk<LoadManifestResponse, ManifestEntry>(
+export const removeManifestEntry = createAsyncThunk<LoadManifestResponse, WOManifestEntry>(
     'manifest/current/remove',
     async (arg) => {
         return await deleteManifestEntry(arg);
@@ -76,6 +78,7 @@ export const loadWorkOrder = createAsyncThunk<WorkOrder | null, string>(
     }
 )
 
-export const updateCurrentEntry = createAction<Partial<Omit<ManifestEntry, 'id'>>>('manifest/current/update');
+export const updateCurrentEntry = createAction<Partial<Omit<WOManifestEntry, 'id'>>>('manifest/current/update');
+export const setNewEntry = createAction('manifest/current/newEntry');
 export const setListFilter = createAction<string>('manifest/list/setFilter');
-export const setListSort = createAction<SortProps<ManifestEntry>>('manifest/list/setSort');
+export const setListSort = createAction<SortProps<WOManifestEntryItem>>('manifest/list/setHistorySort');

@@ -1,39 +1,27 @@
-import React, {ChangeEvent, createRef, FormEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, createRef, FormEvent} from 'react';
 import {useSelector} from 'react-redux';
 import formatDate from "date-fns/format";
 import parseISO from "date-fns/parseISO";
-import {loadingWorkOrderSelector, newEntry, workOrderSelector} from "./index";
-import {entryChangedAction, loadWorkOrder, removeManifestEntry, saveManifestEntry, setCurrentEntry} from "./actions";
-import {Alert, FormColumn, Input, InputGroup, SpinnerButton, TextArea} from "chums-ducks";
+import {loadWorkOrder, removeManifestEntry, saveManifestEntry, setNewEntry, updateCurrentEntry} from "./actions";
+import {Alert, FormColumn, Input, InputGroup, SpinnerButton} from "chums-components";
 import {selectCurrentShipDate} from "../shipDates";
 import {useAppDispatch} from "../../app/configureStore";
-import {selectCurrentEntry} from "./selectors";
-import {ManifestEntry} from "../../types";
-import {Editable} from "chums-types/src/generics";
-import dayjs from "dayjs";
+import {selectCurrentEntry, selectCurrentLoading, selectCurrentWorkOrder} from "./selectors";
+import {WOManifestEntry} from "chums-types/src/work-order";
+import {TextareaAutosize} from "@mui/base";
+import ManifestSelector from "./ManifestSelector";
 
 
-const EntryForm: React.FC = () => {
+const EntryForm = () => {
     const dispatch = useAppDispatch();
     const shipDate = useSelector(selectCurrentShipDate);
     const currentEntry = useSelector(selectCurrentEntry);
-    const workOrder = useSelector(workOrderSelector);
-    const workOrderLoading = useSelector(selec);
+    const workOrder = useSelector(selectCurrentWorkOrder);
+    const loading = useSelector(selectCurrentLoading);
     const woRef = createRef<HTMLInputElement>();
 
-    const [entry, setEntry] = useState<(ManifestEntry & Editable) | null>(null);
-    useEffect(() => {
-        if (!!shipDate && currentEntry?.ShipDate !== shipDate) {
-            setEntry({...newEntry, ShipDate: shipDate});
-        } else {
-            setEntry(currentEntry);
-        }
-        woRef.current?.focus();
-    }, [shipDate, currentEntry]);
-
-
     const thisWeek = formatDate(new Date(), 'yyyy-ww');
-    const shipWeek = formatDate(parseISO(shipDate ?? ''), 'yyyy-ww');
+    const shipWeek = formatDate(parseISO(shipDate ? shipDate : new Date().toISOString()), 'yyyy-ww');
     const readOnly = shipWeek < thisWeek;
 
     const onChangeShipDate = (ev: ChangeEvent<HTMLInputElement>) => {
@@ -41,56 +29,59 @@ const EntryForm: React.FC = () => {
         const value = ev.target.valueAsDate
             ? new Date(ev.target.valueAsDate.valueOf() + new Date().getTimezoneOffset() * 60 * 1000).toISOString()
             : '';
-        dispatch(entryChangedAction({ShipDate: value}));
+        dispatch(updateCurrentEntry({ShipDate: value}));
     }
 
-    const onChangeWorkOrder = (ev: ChangeEvent<HTMLInputElement>) => {
-        if (!entry) {
-            return;
+    const entryChangeHandler = (field: keyof WOManifestEntry) => (ev: ChangeEvent<HTMLInputElement>) => {
+        switch (field) {
+            case 'ShipDate':
+            case 'id':
+                return;
+            case 'QuantityShipped':
+                dispatch(updateCurrentEntry({[field]: ev.target.valueAsNumber ?? 0}));
+                return;
+            default:
+                dispatch(updateCurrentEntry({[field]: ev.target.value}));
+                return;
         }
-        setEntry({...entry, WorkOrderNo: ev.target.value, changed: true});
     }
 
-    const onChangeQty = (ev: ChangeEvent<HTMLInputElement>) => {
-        if (!entry) {
-            return;
-        }
-        setEntry({...entry, QuantityShipped: Number(ev.target.value || 0), changed: true});
+    const onChangeComment = (ev: ChangeEvent<HTMLTextAreaElement>) => {
+        dispatch(updateCurrentEntry({Comment: ev.target.value}));
     }
-    const onChangeComment = (ev: ChangeEvent<HTMLInputElement>) => {
-        if (!entry) {
-            return;
-        }
-        setEntry({...entry, Comment: ev.target.value, changed: true});
-    }
+
     const onLoadWorkOrder = () => {
-        if (!entry || !entry.WorkOrderNo) {
+        if (!currentEntry.WorkOrderNo) {
             return;
         }
-        dispatch(loadWorkOrder(entry.WorkOrderNo));
+        dispatch(loadWorkOrder(currentEntry.WorkOrderNo));
     }
 
 
     const onSubmit = (ev: FormEvent) => {
         ev.preventDefault();
-        if (readOnly || !entry) {
+        if (readOnly) {
             return;
         }
-        dispatch(saveManifestEntry(entry));
+        if (!currentEntry.id && currentEntry.WorkOrderNo && !currentEntry.ItemCode) {
+            dispatch(loadWorkOrder(currentEntry.WorkOrderNo));
+            return;
+        }
+        dispatch(saveManifestEntry(currentEntry));
         woRef.current?.focus();
     }
 
     const onNewWorkOrder = () => {
-        setCurrentEntry({...newEntry, ShipDate: shipDate});
+        dispatch(setNewEntry());
         woRef.current?.focus();
     }
 
     const onConfirmDelete = () => {
-        if (readOnly || !entry) {
+        if (readOnly || !currentEntry.id) {
             return;
         }
         if (window.confirm('Are you sure you want to delete this entry?')) {
-            dispatch(removeManifestEntry(entry));
+            dispatch(removeManifestEntry(currentEntry));
         }
         woRef.current?.focus();
     }
@@ -101,101 +92,90 @@ const EntryForm: React.FC = () => {
 
     return (
         <form className="mb-3" onSubmit={onSubmit}>
-            <FormColumn width={10} label="Ship Date">
-                <div className="row g-3">
-                    <div className="col-lg-3 col-5">
+            <div className="row g-3">
+                <div className="col-6">
+                    <FormColumn label="Ship Date" width={8}>
                         <InputGroup bsSize="sm">
-                            <Input type="date" value={inputDate(entry.ShipDate)} onChange={onChangeShipDate}
-                                   readOnly={!!entry.id && readOnly}/>
-                            <div
-                                className="input-group-text">{entry.ShipDate ? new Date(entry.ShipDate).toLocaleDateString(undefined, {weekday: 'short'}) : 'N/A'}</div>
+                            <Input type="date" value={inputDate(currentEntry.ShipDate)} onChange={onChangeShipDate}
+                                   readOnly={!!currentEntry.id && readOnly}/>
+                            <div className="input-group-text">
+                                {currentEntry.ShipDate ? new Date(currentEntry.ShipDate).toLocaleDateString(undefined, {weekday: 'short'}) : 'N/A'}
+                            </div>
                         </InputGroup>
-                    </div>
-                    <label className="col-2 text-end">Due</label>
-                    <div className="col-lg-6 col-5">
-                        {!!workOrder?.WODueDate && (
-                            <strong>{formatDate(parseISO(workOrder.WODueDate), 'dd MMM yyyy')}</strong>
-                        )}
-                    </div>
+                    </FormColumn>
+                    <FormColumn label="Work Order #" width={8}>
+                        <InputGroup bsSize="sm">
+                            <Input type="text" value={currentEntry.WorkOrderNo || ''}
+                                   onChange={entryChangeHandler('WorkOrderNo')}
+                                   placeholder="WO #"
+                                   onBlur={onLoadWorkOrder} myRef={woRef} readOnly={readOnly}
+                                   maxLength={7}/>
+                            <SpinnerButton spinning={loading} onClick={onLoadWorkOrder} type="button"
+                                           tabIndex={-1} color="secondary">
+                                <span className="bi-search"/>
+                            </SpinnerButton>
+                        </InputGroup>
+                        {workOrder?.Status === 'C' && <Alert color="danger">Work Order {workOrder.WorkOrder} is closed.</Alert>}
+                    </FormColumn>
+                    <FormColumn label="Quantity" width={8}>
+                        <input type="number" className="form-control form-control-sm"
+                               required
+                               value={currentEntry.QuantityShipped || ''} onChange={entryChangeHandler('QuantityShipped')}/>
+                    </FormColumn>
+                    <FormColumn label="Comment" width={8}>
+                        <TextareaAutosize value={currentEntry.Comment || ''} minRows={2} maxRows={4}
+                                          className="form-control form-control-sm"
+                                          readOnly={readOnly}
+                                          onChange={onChangeComment}/>
+                    </FormColumn>
                 </div>
-            </FormColumn>
-            <FormColumn width={10} label="Work Order #">
-                <div className="row g-3">
-                    <div className="col-lg-3 col-5">
-                        <div className="input-group input-group-sm">
-                            <InputGroup bsSize="sm">
-                                <Input type="text" value={entry.WorkOrderNo || ''} onChange={onChangeWorkOrder}
-                                       placeholder="WO #" wait={100}
-                                       onBlur={onLoadWorkOrder} required myRef={woRef} readOnly={readOnly}
-                                       maxLength={7}/>
-                                <SpinnerButton spinning={workOrderLoading} onClick={onLoadWorkOrder} type="button"
-                                               tabIndex={-1} color="secondary">
-                                    <span className="bi-search"/>
-                                </SpinnerButton>
-                            </InputGroup>
+                <div className="col-6">
+                    <FormColumn label="Item Code" width={8}>
+                        <input type="text" className="form-control form-control-sm"
+                               value={currentEntry.ItemCode ?? ''} onChange={entryChangeHandler('ItemCode')}
+                               readOnly={readOnly || !!currentEntry.WorkOrderNo} disabled={!!currentEntry.WorkOrderNo} />
+                    </FormColumn>
+                    <FormColumn label="Whse Code" width={8}>
+                        <input type="text" className="form-control form-control-sm"
+                               value={currentEntry.WarehouseCode ?? ''} onChange={entryChangeHandler('WarehouseCode')}
+                               maxLength={3}
+                               readOnly={readOnly || !!currentEntry.WorkOrderNo} disabled={!!currentEntry.WorkOrderNo} />
+                    </FormColumn>
+                    {!readOnly && !!currentEntry.id && (
+                        <Alert color="warning" className="mt-1">
+                            <strong className="me-1">Hey!</strong> Editing entry #{currentEntry.id}?
+                        </Alert>
+                    )}
+                </div>
+            </div>
+            <div className="row g-3 align-items-baseline">
+                <div className="col-6">
+                    <FormColumn label="" width={8} className="mt-1">
+                        <div className="row g-3">
+                            <div className="col-auto">
+                                <button type="submit" className="btn btn-sm btn-primary mr-1" disabled={readOnly}>Save</button>
+                            </div>
+                            <div className="col-auto">
+                                <button type="button" className="btn btn-sm btn-outline-secondary mr-1"
+                                        disabled={readOnly}
+                                        onClick={onNewWorkOrder}>
+                                    New Entry
+                                </button>
+
+                            </div>
+                            <div className="col-auto">
+                                <button type="button" className="btn btn-sm btn-outline-danger mr-1"
+                                        disabled={!currentEntry.id || readOnly}
+                                        onClick={onConfirmDelete}>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div className="col-2 text-end">Item</div>
-                    <div className="col-lg-6 col-5">
-                        {!!workOrder && (
-                            <strong>{workOrder.ItemBillNumber || ''} ({workOrder.ParentWhse || 'WO Not Found'})</strong>
-                        )}
-                    </div>
+                    </FormColumn>
                 </div>
-            </FormColumn>
-            <FormColumn width={10} label="Quantity">
-                <div className="row g-3">
-                    <div className="col-lg-3 col-5">
-                        <Input type="number" value={entry.QuantityShipped || ''} readOnly={readOnly} wait={0}
-                               min={1} required
-                               onChange={onChangeQty}/>
-                    </div>
-                    <div className="col-2 text-end">Remaining {workOrder?.Status === 'C' ? '(Closed)' : ''}</div>
-                    <div className="col-lg-6 col-5">
-                        {!!workOrder?.ItemBillNumber && (
-                            <strong>{workOrder.QtyOrdered - workOrder.QtyComplete}</strong>
-                        )}
-
-                    </div>
-                </div>
-            </FormColumn>
-            <FormColumn width={10} label="Comment">
-                <div className="row g-3">
-                    <div className="col-lg-6 col">
-                        <TextArea value={entry.Comment || ''}
-                                  readOnly={readOnly}
-                                  onChange={onChangeComment}/>
-                    </div>
-                </div>
-            </FormColumn>
-            <FormColumn width={10} label={' '} className="mt-1">
-                <div className="row g-1  align-items-baseline">
-                    <div className="col-auto">
-                        <button type="submit" className="btn btn-sm btn-primary mr-1" disabled={readOnly}>Save</button>
-                    </div>
-                    <div className="col-auto">
-                        <button type="button" className="btn btn-sm btn-outline-secondary mr-1"
-                                onClick={onNewWorkOrder}>
-                            New Entry
-                        </button>
-
-                    </div>
-                    <div className="col-auto">
-                        <button type="button" className="btn btn-sm btn-outline-danger mr-1"
-                                disabled={!entry.id || readOnly}
-                                onClick={onConfirmDelete}>
-                            Delete
-                        </button>
-                    </div>
-                    <div className="col-auto">
-                        {!!entry.id && (
-                            <Alert title={"Hey!"}
-                                   message={`Are you sure you want to edit or delete entry #${entry.id}?`}
-                                   color="warning" className="mt-0"/>
-                        )}
-                    </div>
-                </div>
-            </FormColumn>
+                <div className="col"></div>
+                <ManifestSelector />
+            </div>
         </form>
     )
 }

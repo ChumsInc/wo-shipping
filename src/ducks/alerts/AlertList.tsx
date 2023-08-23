@@ -1,5 +1,5 @@
 import React from 'react';
-import {useAppDispatch} from "../../app/hooks";
+import {useAppDispatch} from "../../app/configureStore";
 import {useSelector} from "react-redux";
 import {dismissAlert, selectAlerts} from "./index";
 import {Alert} from "chums-components";
