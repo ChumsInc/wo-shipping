@@ -4,7 +4,7 @@ import {Editable} from "chums-types/src/generics";
 import {RootState} from "../../app/configureStore";
 import {SortProps} from "chums-components";
 import {fetchManifestEntrySearch} from "../../api/manifest";
-import {manifestSorter} from "../manifest/utils";
+import {manifestSorter, totalsReducer} from "../manifest/utils";
 
 export interface HistorySearch {
     workOrderNo: string;
@@ -52,6 +52,14 @@ export const selectSortedHistoryList = createSelector(
     (list, sort) => {
         return [...list].sort(manifestSorter(sort));
     }
+)
+
+export const selectHistoryTotals = createSelector(
+    [selectHistoryList],
+    (list) => {
+        return totalsReducer(list, 'Lookup Total');
+    }
+
 )
 
 export const setSearch = createAction<Partial<HistorySearch>>('history/setSearch');

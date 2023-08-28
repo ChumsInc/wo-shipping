@@ -131,6 +131,7 @@ const manifestReducer = createReducer(initialManifestState, builder => {
         .addCase(loadWorkOrder.fulfilled, (state, action) => {
             state.current.loading = false;
             state.current.workOrder = action.payload;
+            state.current.entry.WorkOrderNo = action.payload?.WorkOrder ?? '';
             state.current.entry.ItemCode = action.payload?.ItemBillNumber ?? null;
             state.current.entry.WarehouseCode = action.payload?.ParentWhse ?? null;
         })
