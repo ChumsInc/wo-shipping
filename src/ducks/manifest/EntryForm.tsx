@@ -71,7 +71,7 @@ const EntryForm = () => {
 
     const onSubmit = (ev: FormEvent) => {
         ev.preventDefault();
-        if (readOnly || !canEdit) {
+        if (readOnly && !canEdit) {
             return;
         }
         if (!currentEntry.id && currentEntry.WorkOrderNo && !currentEntry.ItemCode) {
@@ -165,7 +165,7 @@ const EntryForm = () => {
                     <FormColumn label="" width={8} className="mt-1">
                         <div className="row g-3">
                             <div className="col-auto">
-                                <button type="submit" className="btn btn-sm btn-primary mr-1" disabled={readOnly}>Save</button>
+                                <button type="submit" className="btn btn-sm btn-primary mr-1" disabled={readOnly && !canEdit}>Save</button>
                             </div>
                             <div className="col-auto">
                                 <button type="button" className="btn btn-sm btn-outline-secondary mr-1"
