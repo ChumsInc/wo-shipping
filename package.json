@@ -1,6 +1,6 @@
 {
   "name": "wo-shipping",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "scripts": {
     "start": "webpack serve --config webpack.dev.js --progress",
     "build": "webpack --config webpack.prod.js --progress --env production"
