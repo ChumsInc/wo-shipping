@@ -17,7 +17,7 @@
     "chums-types": "github:UtahGooner/chums-types",
     "classnames": "^2.2.6",
     "date-fns": "^2.23.0",
-    "dayjs": "^1.11.9",
+    "dayjs": "^1.11.10",
     "debug": "^4.1.0",
     "lodash": "^4.17.20",
     "numeral": "^2.0.6",

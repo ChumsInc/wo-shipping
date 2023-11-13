@@ -1,4 +1,4 @@
-import React, {ChangeEvent, createRef, FormEvent} from 'react';
+import React, {ChangeEvent, createRef, FormEvent, useEffect, useState} from 'react';
 import {useSelector} from 'react-redux';
 import formatDate from "date-fns/format";
 import parseISO from "date-fns/parseISO";
@@ -10,6 +10,9 @@ import {selectCurrentEntry, selectCurrentLoading, selectCurrentWorkOrder} from "
 import {WOManifestEntry} from "chums-types/src/work-order";
 import {TextareaAutosize} from "@mui/base";
 import ManifestSelector from "./ManifestSelector";
+import {selectCanEdit, selectCanEnter} from "../permissions";
+import dayjs from "dayjs";
+
 
 
 const EntryForm = () => {
@@ -19,10 +22,15 @@ const EntryForm = () => {
     const workOrder = useSelector(selectCurrentWorkOrder);
     const loading = useSelector(selectCurrentLoading);
     const woRef = createRef<HTMLInputElement>();
+    const canEnter = useSelector(selectCanEnter);
+    const canEdit = useSelector(selectCanEdit);
 
-    const thisWeek = formatDate(new Date(), 'yyyy-ww');
-    const shipWeek = formatDate(parseISO(shipDate ? shipDate : new Date().toISOString()), 'yyyy-ww');
-    const readOnly = shipWeek < thisWeek;
+    const [readOnly, setReadOnly] = useState(!canEnter || (!!shipDate && dayjs().endOf('day').isAfter(shipDate)));
+    useEffect(() => {
+        setReadOnly(!canEnter || (!!shipDate && dayjs().endOf("day").isAfter(shipDate)));
+    }, [shipDate, canEnter]);
+
+    const today = dayjs();
 
     const onChangeShipDate = (ev: ChangeEvent<HTMLInputElement>) => {
         //date from input does not have the current timezone offset
@@ -54,13 +62,16 @@ const EntryForm = () => {
         if (!currentEntry.WorkOrderNo) {
             return;
         }
+        if (!!shipDate && dayjs().endOf('day').isAfter(shipDate)) {
+            return;
+        }
         dispatch(loadWorkOrder(currentEntry.WorkOrderNo));
     }
 
 
     const onSubmit = (ev: FormEvent) => {
         ev.preventDefault();
-        if (readOnly) {
+        if (readOnly || !canEdit) {
             return;
         }
         if (!currentEntry.id && currentEntry.WorkOrderNo && !currentEntry.ItemCode) {
@@ -119,13 +130,14 @@ const EntryForm = () => {
                     </FormColumn>
                     <FormColumn label="Quantity" width={8}>
                         <input type="number" className="form-control form-control-sm"
+                               readOnly={readOnly}
                                required
                                value={currentEntry.QuantityShipped || ''} onChange={entryChangeHandler('QuantityShipped')}/>
                     </FormColumn>
                     <FormColumn label="Comment" width={8}>
                         <TextareaAutosize value={currentEntry.Comment || ''} minRows={2} maxRows={4}
                                           className="form-control form-control-sm"
-                                          readOnly={readOnly}
+                                          readOnly={readOnly && !canEdit}
                                           onChange={onChangeComment}/>
                     </FormColumn>
                 </div>
@@ -141,7 +153,7 @@ const EntryForm = () => {
                                maxLength={3}
                                readOnly={readOnly || !!currentEntry.WorkOrderNo} disabled={!!currentEntry.WorkOrderNo} />
                     </FormColumn>
-                    {!readOnly && !!currentEntry.id && (
+                    {(!readOnly || canEdit) && !!currentEntry.id && (
                         <Alert color="warning" className="mt-1">
                             <strong className="me-1">Hey!</strong> Editing entry #{currentEntry.id}?
                         </Alert>

@@ -9,6 +9,7 @@ import AlertList from "../ducks/alerts/AlertList";
 import {ErrorBoundary} from "react-error-boundary";
 import Fallback from "./Fallback";
 import {loadShipDates} from "../ducks/shipDates";
+import {loadPermissions} from "../ducks/permissions";
 
 const tabs: Tab[] = [
     {id: 'entry', title: 'Shipping Entry'},
@@ -22,6 +23,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         dispatch(loadShipDates());
+        dispatch(loadPermissions());
         const id = LocalStore.getItem<string>(CURRENT_TAB, tabs[0].id)
         const [tab] = tabs.filter(t => t.id === id);
         setTab(tab ?? tabs[0]);

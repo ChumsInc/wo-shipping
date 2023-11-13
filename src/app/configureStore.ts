@@ -5,11 +5,13 @@ import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import manifestReducer from "../ducks/manifest";
 import shipDatesReducer from "../ducks/shipDates";
 import historyReducer from "../ducks/history";
+import permissionsReducer from "../ducks/permissions";
 
 const rootReducer = combineReducers({
     alerts: alertsReducer,
     history: historyReducer,
     manifest: manifestReducer,
+    permissions: permissionsReducer,
     shipDates: shipDatesReducer,
 })
 
