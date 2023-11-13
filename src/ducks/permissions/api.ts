@@ -27,7 +27,7 @@ export interface UserValidationResponse {
 export async function validateUser():Promise<UserValidationResponse> {
     try {
         const canEntry = await validateRole('production');
-        const canEdit = await validateRole('inventory-admin');
+        const canEdit = await validateRole('inventory_admin');
         return {canEntry, canEdit};
     } catch(err:unknown) {
         if (err instanceof Error) {
