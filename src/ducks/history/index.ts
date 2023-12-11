@@ -5,9 +5,10 @@ import {RootState} from "../../app/configureStore";
 import {SortProps} from "chums-components";
 import {fetchManifestEntrySearch} from "../../api/manifest";
 import {manifestSorter, totalsReducer} from "../manifest/utils";
+import {PMManifestEntryItem} from "chums-types/src/production";
 
 export interface HistorySearch {
-    workOrderNo: string;
+    workTicketNo: string;
     warehouseCode: string;
     itemCode: string;
     salesOrderNo: string;
@@ -17,11 +18,11 @@ export interface HistorySearch {
 }
 
 export interface HistoryState {
-    list: WOManifestEntryItem[];
+    list: PMManifestEntryItem[];
     loading: boolean;
     loaded: boolean;
     search: HistorySearch & Editable;
-    sort: SortProps<WOManifestEntryItem>
+    sort: SortProps<PMManifestEntryItem>
 }
 
 export const initialState: HistoryState = {
@@ -29,7 +30,7 @@ export const initialState: HistoryState = {
     loading: false,
     loaded: false,
     search: {
-        workOrderNo: '',
+        workTicketNo: '',
         warehouseCode: '',
         itemCode: '',
         salesOrderNo: '',
@@ -63,8 +64,8 @@ export const selectHistoryTotals = createSelector(
 )
 
 export const setSearch = createAction<Partial<HistorySearch>>('history/setSearch');
-export const setHistorySort = createAction<SortProps<WOManifestEntryItem>>('history/setSort');
-export const loadSearch = createAsyncThunk<WOManifestEntryItem[], HistorySearch>(
+export const setHistorySort = createAction<SortProps<PMManifestEntryItem>>('history/setSort');
+export const loadSearch = createAsyncThunk<PMManifestEntryItem[], HistorySearch>(
     'history/load',
     async (arg) => {
         return await fetchManifestEntrySearch(arg)

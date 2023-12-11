@@ -4,6 +4,7 @@ import formatDate from "date-fns/format";
 import {SortableTableField} from "chums-components";
 import {WOManifestEntryItem} from "chums-types";
 import Tooltip from '@mui/material/Tooltip';
+import {PMManifestEntryItem} from "chums-types/src/production";
 
 interface CommentIconProps {
     comment?: string
@@ -20,9 +21,9 @@ const CommentIcon = ({comment}:CommentIconProps) => {
     )
 }
 
-export const tableFields: SortableTableField<WOManifestEntryItem>[] = [
+export const tableFields: SortableTableField<PMManifestEntryItem>[] = [
     {field: 'id', title: 'ID', sortable: true},
-    {field: 'WorkOrderNo', title: 'Work Order', sortable: true},
+    {field: 'WorkTicketNo', title: 'Work Ticket', sortable: true, render: (row) => row.WorkTicketNo?.replace(/^0+/, '') ?? ''},
     {field: 'WarehouseCode', title: 'Whse', sortable: true},
     {field: 'ItemCode', title: 'Item', sortable: true},
     {field: 'ItemCodeDesc', title: 'Description', sortable: true},

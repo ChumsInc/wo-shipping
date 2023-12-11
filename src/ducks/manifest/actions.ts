@@ -1,4 +1,4 @@
-import {LoadManifestResponse, ManifestEntryResponse, WorkOrder} from "../../types";
+import {LoadManifestResponse, ManifestEntryResponse, WorkTicket} from "../../types";
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 import {RootState} from "../../app/configureStore";
 import {selectCurrentSaving, selectManifestLoading} from "./selectors";
@@ -7,14 +7,13 @@ import {
     deleteManifestEntry,
     fetchManifestEntries,
     fetchManifestEntry,
-    fetchWorkOrder,
+    fetchWorkTicket,
     postManifestEntry
 } from "../../api/manifest";
 import {SortProps} from "chums-components";
-import {WOManifestEntry} from "chums-types/src/work-order";
-import {WOManifestEntryItem} from "chums-types";
+import {PMManifestEntry, PMManifestEntryItem} from "chums-types";
 
-export const setCurrentEntry = createAction<WOManifestEntry>('manifest/current/setEntry');
+export const setCurrentEntry = createAction<PMManifestEntry>('manifest/current/setEntry');
 
 export const loadManifestEntries = createAsyncThunk<LoadManifestResponse, string>(
     'manifest/list/load',
@@ -29,7 +28,7 @@ export const loadManifestEntries = createAsyncThunk<LoadManifestResponse, string
     }
 )
 
-export const saveManifestEntry = createAsyncThunk<LoadManifestResponse, WOManifestEntry>(
+export const saveManifestEntry = createAsyncThunk<LoadManifestResponse, PMManifestEntry>(
     'manifest/current/save',
     async (arg) => {
         return await postManifestEntry(arg);
@@ -41,7 +40,7 @@ export const saveManifestEntry = createAsyncThunk<LoadManifestResponse, WOManife
     }
 )
 
-export const removeManifestEntry = createAsyncThunk<LoadManifestResponse, WOManifestEntry>(
+export const removeManifestEntry = createAsyncThunk<LoadManifestResponse, PMManifestEntry>(
     'manifest/current/remove',
     async (arg) => {
         return await deleteManifestEntry(arg);
@@ -66,10 +65,10 @@ export const loadManifestEntry = createAsyncThunk<ManifestEntryResponse | null, 
     }
 )
 
-export const loadWorkOrder = createAsyncThunk<WorkOrder | null, string>(
-    'manifest/current/loadWorkOrder',
+export const loadWorkTicket = createAsyncThunk<WorkTicket | null, string>(
+    'manifest/current/loadWorkTicket',
     async (arg) => {
-        return await fetchWorkOrder(arg);
+        return await fetchWorkTicket(arg);
     }, {
         condition: (arg, {getState}) => {
             const state = getState() as RootState;
@@ -78,7 +77,7 @@ export const loadWorkOrder = createAsyncThunk<WorkOrder | null, string>(
     }
 )
 
-export const updateCurrentEntry = createAction<Partial<Omit<WOManifestEntry, 'id'>>>('manifest/current/update');
+export const updateCurrentEntry = createAction<Partial<Omit<PMManifestEntry, 'id'>>>('manifest/current/update');
 export const setNewEntry = createAction('manifest/current/newEntry');
 export const setListFilter = createAction<string>('manifest/list/setFilter');
-export const setListSort = createAction<SortProps<WOManifestEntryItem>>('manifest/list/setHistorySort');
+export const setListSort = createAction<SortProps<PMManifestEntryItem>>('manifest/list/setHistorySort');

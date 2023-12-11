@@ -1,9 +1,10 @@
-import {LoadManifestResponse, ManifestEntryResponse, ShipDateResponse, WorkOrder} from "../types";
+import {LoadManifestResponse, ManifestEntryResponse, ShipDateResponse, WorkTicket} from "../types";
 import {fetchJSON} from "chums-components";
 import dayjs from "dayjs";
 import {WOManifestEntry} from "chums-types/src/work-order";
 import {WOManifestEntryItem} from "chums-types";
 import {HistorySearch} from "../ducks/history";
+import {PMManifestEntry, PMManifestEntryItem} from "chums-types/src/production";
 
 export async function fetchShipDates(): Promise<ShipDateResponse[]> {
     try {
@@ -39,7 +40,7 @@ export async function fetchManifestEntries(arg: string): Promise<LoadManifestRes
     }
 }
 
-export async function fetchManifestEntrySearch(arg: HistorySearch): Promise<WOManifestEntryItem[]> {
+export async function fetchManifestEntrySearch(arg: HistorySearch): Promise<PMManifestEntryItem[]> {
     try {
         const params = new URLSearchParams();
         Object.keys(arg).forEach(value => {
@@ -58,7 +59,7 @@ export async function fetchManifestEntrySearch(arg: HistorySearch): Promise<WOMa
             }
         })
         const url = `/api/operations/production/wo/shipping/chums/search?${params.toString()}`;
-        const res = await fetchJSON<WOManifestEntryItem[]>(url, {cache: "no-cache"});
+        const res = await fetchJSON<PMManifestEntryItem[]>(url, {cache: "no-cache"});
         return res ?? [];
     } catch (err: unknown) {
         if (err instanceof Error) {
@@ -70,15 +71,15 @@ export async function fetchManifestEntrySearch(arg: HistorySearch): Promise<WOMa
     }
 }
 
-export async function postManifestEntry(arg: WOManifestEntry): Promise<LoadManifestResponse> {
+export async function postManifestEntry(arg: PMManifestEntry): Promise<LoadManifestResponse> {
     try {
-        const {id, Company, WorkOrderNo, ItemCode, WarehouseCode, QuantityShipped, ShipDate, Comment} = arg;
+        const {id, Company, WorkTicketNo, ItemCode, WarehouseCode, QuantityShipped, ShipDate, Comment} = arg;
         const url = '/api/operations/production/wo/shipping/:id'
             .replace(':id', encodeURIComponent(id));
         const body = {
             id,
             Company,
-            WorkOrderNo,
+            WorkTicketNo,
             ItemCode,
             WarehouseCode,
             QuantityShipped,
@@ -97,7 +98,7 @@ export async function postManifestEntry(arg: WOManifestEntry): Promise<LoadManif
     }
 }
 
-export async function deleteManifestEntry(arg: WOManifestEntry): Promise<LoadManifestResponse> {
+export async function deleteManifestEntry(arg: PMManifestEntry): Promise<LoadManifestResponse> {
     try {
         const url = '/api/operations/production/wo/shipping/:id'
             .replace(':id', encodeURIComponent(arg.id));
@@ -118,15 +119,15 @@ export async function fetchManifestEntry(arg: number): Promise<ManifestEntryResp
         const url = '/api/operations/production/wo/shipping/:id'
             .replace(':id', encodeURIComponent(arg));
         const res = await fetchJSON<{
-            entry: WOManifestEntryItem
+            entry: PMManifestEntryItem
         }>(url, {cache: 'no-cache'});
         if (!res.entry) {
             return null;
         }
-        const workOrder = await fetchWorkOrder(res.entry.WorkOrderNo);
+        const workTicket = await fetchWorkTicket(res.entry.WorkTicketNo);
         return {
             entry: res.entry,
-            workOrder,
+            workTicket,
         }
     } catch (err: unknown) {
         if (err instanceof Error) {
@@ -138,21 +139,21 @@ export async function fetchManifestEntry(arg: number): Promise<ManifestEntryResp
     }
 }
 
-export async function fetchWorkOrder(arg?: string | null): Promise<WorkOrder | null> {
+export async function fetchWorkTicket(arg?: string | null): Promise<WorkTicket | null> {
     try {
         if (!arg) {
             return null;
         }
-        const url = '/api/operations/production/wo/chums/:WorkOrderNo'
-            .replace(':WorkOrderNo', encodeURIComponent(arg.padStart(7, '0')));
-        const res = await fetchJSON<{ workorder: WorkOrder }>(url, {cache: 'no-cache'})
-        return res.workorder ?? null;
+        const url = '/api/operations/production/work-ticket/chums/:workTicketNo'
+            .replace(':workTicketNo', encodeURIComponent(arg.padStart(12, '0')));
+        const res = await fetchJSON<{ workTicket: WorkTicket }>(url, {cache: 'no-cache'})
+        return res.workTicket ?? null;
     } catch (err: unknown) {
         if (err instanceof Error) {
-            console.debug("fetchWorkOrder()", err.message);
+            console.debug("fetchWorkTicket()", err.message);
             return Promise.reject(err);
         }
-        console.debug("fetchWorkOrder()", err);
-        return Promise.reject(new Error('Error in fetchWorkOrder()'));
+        console.debug("fetchWorkTicket()", err);
+        return Promise.reject(new Error('Error in fetchWorkTicket()'));
     }
 }

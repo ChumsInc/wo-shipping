@@ -1,5 +1,7 @@
 import {WOManifestEntryItem} from "chums-types";
 import {WOManifestEntry} from "chums-types/src/work-order";
+import {PMManifestEntry, PMManifestEntryItem} from "chums-types/src/production";
+import Decimal from "decimal.js";
 
 
 export interface ManifestTotals {
@@ -26,28 +28,29 @@ export interface WorkOrderOperationDetail {
     idSteps: number | null;
 }
 
-export interface WorkOrder {
+export interface WorkTicket {
     Company: 'chums' | 'bc',
-    WorkOrder: string,
-    ItemBillNumber: string,
-    ItemUM: string,
-    RoutingNumber: string,
-    ParentWhse: string,
-    Status: string,
-    WODate: string,
-    WODueDate: string,
-    UMConversion: number,
-    QtyOrdered: number,
-    QtyComplete: number,
+    WorkTicketKey: string;
+    WorkTicketNo: string,
+    ParentItemCode: string,
+    ParentUnitOfMeasure: string,
+    TemplateNo: string,
+    ParentWarehouseCode: string,
+    WorkTicketStatus: string,
+    WorkTicketDate: string,
+    ProductionDueDate: string,
+    ParentUnitOfMeasureConvFactor: number|string|Decimal,
+    QuantityOrdered: number|string|Decimal,
+    QuantityCompleted: number|string|Decimal,
     operationDetail: WorkOrderOperationDetail[],
 }
 
 export interface LoadManifestResponse {
-    list: WOManifestEntryItem[];
+    list: PMManifestEntryItem[];
     shipDates: ShipDateResponse[];
 }
 
 export interface ManifestEntryResponse {
-    entry: WOManifestEntryItem;
-    workOrder: WorkOrder | null;
+    entry: PMManifestEntryItem;
+    workTicket: WorkTicket | null;
 }

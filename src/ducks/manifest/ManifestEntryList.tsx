@@ -16,6 +16,7 @@ import {
 } from "./selectors";
 import {WOManifestEntryItem} from "chums-types";
 import {useAppDispatch} from "../../app/configureStore";
+import {PMManifestEntry, PMManifestEntryItem} from "chums-types/src/production";
 
 const ManifestEntryList: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -29,10 +30,10 @@ const ManifestEntryList: React.FC = () => {
     const [rowsPerPage, setRowsPerPage] = useState(LocalStore.getItem<number>(CURRENT_ENTRY_ROWS, 10) ?? 10);
 
 
-    const sortChangeHandler = (sort: SortProps<WOManifestEntryItem>) => {
+    const sortChangeHandler = (sort: SortProps<PMManifestEntryItem>) => {
         dispatch(setListSort(sort));
     }
-    const onSelect = (row: WOManifestEntry) => {
+    const onSelect = (row: PMManifestEntry) => {
         console.log(row);
         dispatch(setCurrentEntry(row));
     }

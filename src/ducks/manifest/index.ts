@@ -1,56 +1,56 @@
-import {WorkOrder} from "../../types";
+import {WorkTicket} from "../../types";
 import {SortProps} from "chums-components";
 import {createReducer} from "@reduxjs/toolkit";
 import {
     loadManifestEntries,
     loadManifestEntry,
-    loadWorkOrder,
+    loadWorkTicket,
     removeManifestEntry,
     saveManifestEntry,
     setCurrentEntry,
     setListFilter,
-    setListSort, setNewEntry,
+    setListSort,
+    setNewEntry,
     updateCurrentEntry
 } from "./actions";
 import {manifestSorter} from "./utils";
 import {Editable} from "chums-types/src/generics";
 import LocalStore, {CURRENT_DATE} from "../../LocalStore";
 import {setCurrentShipDate} from "../shipDates";
-import {WOManifestEntry} from "chums-types/src/work-order";
-import {WOManifestEntryItem} from "chums-types";
+import {PMManifestEntry, PMManifestEntryItem} from "chums-types";
 
 
 export interface ManifestState {
     shipDate: string | null;
     list: {
-        entries: WOManifestEntryItem[];
+        entries: PMManifestEntryItem[];
         loading: boolean;
         loaded: boolean;
-        sort: SortProps<WOManifestEntryItem>;
+        sort: SortProps<PMManifestEntryItem>;
         filter: string;
     }
     current: {
-        entry: (WOManifestEntry & Editable);
-        workOrder: WorkOrder | null;
+        entry: (PMManifestEntry & Editable);
+        workTicket: WorkTicket | null;
         loading: boolean;
         saving: boolean;
     };
 }
 
-export const newEntry = (): WOManifestEntry => {
+export const newEntry = (): PMManifestEntry => {
     const shipDate = LocalStore.getItem<string | null>(CURRENT_DATE, null) ?? null;
     return {
         id: 0,
         Company: 'chums',
         ShipDate: shipDate ?? '',
         QuantityShipped: 0,
-        WorkOrderNo: '',
+        WorkTicketNo: '',
         ItemCode: '',
         WarehouseCode: '',
         Comment: '',
     }
 }
-export const defaultSort: SortProps<WOManifestEntryItem> = {field: 'id', ascending: false};
+export const defaultSort: SortProps<PMManifestEntryItem> = {field: 'id', ascending: false};
 
 
 export const initialManifestState: ManifestState = {
@@ -64,7 +64,7 @@ export const initialManifestState: ManifestState = {
     },
     current: {
         entry: {...newEntry()},
-        workOrder: null,
+        workTicket: null,
         loading: false,
         saving: false,
     },
@@ -117,7 +117,7 @@ const manifestReducer = createReducer(initialManifestState, builder => {
         .addCase(loadManifestEntry.fulfilled, (state, action) => {
             state.current.loading = false;
             state.current.entry = action.payload?.entry ?? newEntry();
-            state.current.workOrder = action.payload?.workOrder ?? null;
+            state.current.workTicket = action.payload?.workTicket ?? null;
         })
         .addCase(loadManifestEntry.rejected, (state) => {
             state.current.loading = false;
@@ -125,17 +125,17 @@ const manifestReducer = createReducer(initialManifestState, builder => {
         .addCase(setCurrentEntry, (state, action) => {
             state.current.entry = action.payload;
         })
-        .addCase(loadWorkOrder.pending, (state) => {
+        .addCase(loadWorkTicket.pending, (state) => {
             state.current.loading = true;
         })
-        .addCase(loadWorkOrder.fulfilled, (state, action) => {
+        .addCase(loadWorkTicket.fulfilled, (state, action) => {
             state.current.loading = false;
-            state.current.workOrder = action.payload;
-            state.current.entry.WorkOrderNo = action.payload?.WorkOrder ?? '';
-            state.current.entry.ItemCode = action.payload?.ItemBillNumber ?? null;
-            state.current.entry.WarehouseCode = action.payload?.ParentWhse ?? null;
+            state.current.workTicket = action.payload;
+            state.current.entry.WorkTicketNo = action.payload?.WorkTicketNo ?? '';
+            state.current.entry.ItemCode = action.payload?.ParentItemCode ?? null;
+            state.current.entry.WarehouseCode = action.payload?.ParentWarehouseCode ?? null;
         })
-        .addCase(loadWorkOrder.rejected, (state) => {
+        .addCase(loadWorkTicket.rejected, (state) => {
             state.current.loading = false;
         })
         .addCase(updateCurrentEntry, (state, action) => {
@@ -160,7 +160,7 @@ const manifestReducer = createReducer(initialManifestState, builder => {
         .addCase(setNewEntry, (state) => {
             if (state.shipDate) {
                 state.current.entry = {...newEntry(), ShipDate: state.shipDate}
-                state.current.workOrder = null;
+                state.current.workTicket = null;
             }
         })
 

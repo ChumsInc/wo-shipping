@@ -57,8 +57,8 @@ export default function HistoryFilters() {
             <div className="col-auto">
                 <InputGroup bsSize="sm">
                     <div className="input-group-text">WO #</div>
-                    <Input type="text" value={search.workOrderNo}
-                           onChange={onChangeSearch('workOrderNo')}/>
+                    <Input type="text" value={search.workTicketNo}
+                           onChange={onChangeSearch('workTicketNo')}/>
                 </InputGroup>
             </div>
             <div className="col-auto">

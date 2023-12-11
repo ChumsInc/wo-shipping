@@ -16,6 +16,7 @@ import {
 import HistoryFilters from "./HistoryFilters";
 import LinearProgress from "@mui/material/LinearProgress";
 import ManifestTotalTFoot from "../manifest/ManifestTotalTFoot";
+import {PMManifestEntryItem} from "chums-types/src/production";
 
 
 const ManifestPrintList = () => {
@@ -27,7 +28,7 @@ const ManifestPrintList = () => {
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(LocalStore.getItem<number>(CURRENT_ENTRY_ROWS, 10) ?? 10);
 
-    const sortChangeHandler = (sort: SortProps<WOManifestEntryItem>) => {
+    const sortChangeHandler = (sort: SortProps<PMManifestEntryItem>) => {
         dispatch(setHistorySort(sort));
     }
 

@@ -2,14 +2,16 @@ import {ManifestTotals} from "../../types";
 import {SortProps} from "chums-components";
 import {WOManifestEntryItem} from "chums-types";
 import dayjs from "dayjs";
+import {PMManifestEntryItem} from "chums-types/src/production";
+import Decimal from "decimal.js";
 
 const initialValue: ManifestTotals = {QuantityOrdered: 0, QuantityShipped: 0};
 
-export const totalsReducer = (list: WOManifestEntryItem[], label: string = ''): ManifestTotals =>
+export const totalsReducer = (list: PMManifestEntryItem[], label: string = ''): ManifestTotals =>
     list.reduce((previousValue, {QuantityOrdered, QuantityShipped}) =>
             ({
-                QuantityOrdered: previousValue.QuantityOrdered + (QuantityOrdered ?? 0),
-                QuantityShipped: previousValue.QuantityShipped + (QuantityShipped ?? 0),
+                QuantityOrdered: new Decimal(previousValue.QuantityOrdered).add(QuantityOrdered ?? 0).toNumber(),
+                QuantityShipped: new Decimal(previousValue.QuantityShipped).add(QuantityShipped ?? 0).toNumber(),
                 label: previousValue.label
             }),
         {...initialValue, label})
@@ -18,11 +20,11 @@ export const totalsReducer = (list: WOManifestEntryItem[], label: string = ''): 
 export const manifestSorter = ({
                                    field,
                                    ascending
-                               }: SortProps<WOManifestEntryItem>) => (a: WOManifestEntryItem, b: WOManifestEntryItem) => {
+                               }: SortProps<PMManifestEntryItem>) => (a: PMManifestEntryItem, b: PMManifestEntryItem) => {
 
     const sortMod = ascending ? 1 : -1;
     switch (field) {
-        case 'WorkOrderNo':
+        case 'WorkTicketNo':
         case 'WarehouseCode':
         case 'ItemCode':
         case 'ItemCodeDesc':

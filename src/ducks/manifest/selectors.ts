@@ -8,7 +8,7 @@ export const selectManifestListSort = (state: RootState) => state.manifest.list.
 export const selectManifestListFilter = (state: RootState) => state.manifest.list.filter;
 export const selectManifestLoading = (state: RootState) => state.manifest.list.loading;
 export const selectCurrentEntry = (state: RootState) => state.manifest.current.entry;
-export const selectCurrentWorkOrder = (state: RootState) => state.manifest.current.workOrder;
+export const selectCurrentWorkTicket = (state: RootState) => state.manifest.current.workTicket;
 export const selectCurrentLoading = (state: RootState) => state.manifest.current.loading;
 export const selectCurrentSaving = (state: RootState) => state.manifest.current.saving;
 export const selectCurrentShipDate = (state: RootState) => state.manifest.shipDate;
@@ -20,7 +20,7 @@ export const selectFilteredList = createSelector(
             .filter(entry => {
                 return !filter.trim()
                     || (entry.ItemCode ?? '').toLowerCase().includes(filter.toLowerCase())
-                    || (entry.WorkOrderNo ?? '').toLowerCase().includes(filter.toLowerCase())
+                    || (entry.WorkTicketNo ?? '').toLowerCase().includes(filter.toLowerCase())
                     || entry.id.toString().startsWith(filter)
                     || (entry.WarehouseCode ?? '').toLowerCase() === filter.toLowerCase()
                     || (entry.MakeFor ?? '').toLowerCase().includes(filter.toLowerCase())
