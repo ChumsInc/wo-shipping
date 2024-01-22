@@ -1,19 +1,15 @@
 import React, {ChangeEvent, createRef, FormEvent, useEffect, useState} from 'react';
 import {useSelector} from 'react-redux';
-import formatDate from "date-fns/format";
-import parseISO from "date-fns/parseISO";
 import {loadWorkTicket, removeManifestEntry, saveManifestEntry, setNewEntry, updateCurrentEntry} from "./actions";
 import {Alert, FormColumn, Input, InputGroup, SpinnerButton} from "chums-components";
-import {selectCurrentShipDate} from "../shipDates";
+import {selectCurrentShipDate, setCurrentShipDate} from "../shipDates";
 import {useAppDispatch} from "../../app/configureStore";
 import {selectCurrentEntry, selectCurrentLoading, selectCurrentWorkTicket} from "./selectors";
-import {WOManifestEntry} from "chums-types/src/work-order";
 import {TextareaAutosize} from "@mui/base";
 import ManifestSelector from "./ManifestSelector";
 import {selectCanEdit, selectCanEnter} from "../permissions";
 import dayjs from "dayjs";
 import {PMManifestEntry} from "chums-types/src/production";
-
 
 
 const EntryForm = () => {
@@ -100,8 +96,38 @@ const EntryForm = () => {
     }
 
 
-    const inputDate = (date?: string) => !date ? '' : formatDate(new Date(date), 'yyyy-MM-dd');
+    const inputDate = (date?: string) => !date ? '' : dayjs(new Date(date)).format('YYYY-MM-DD');
 
+    const onSetShipDate = () => {
+        if (!currentEntry.ShipDate) {
+            return;
+        }
+        dispatch(setCurrentShipDate(currentEntry.ShipDate));
+    }
+
+    if (!shipDate || dayjs(shipDate).isBefore(new Date(), 'day')) {
+        return (
+            <div className="row g-3">
+                <div className="col-md-6 col-12">
+                    <FormColumn label="Ship Date" width={8}>
+                        <InputGroup bsSize="sm">
+                            <Input type="date" value={inputDate(currentEntry.ShipDate)} onChange={onChangeShipDate}
+                                   readOnly={!!currentEntry.id && readOnly}
+                                   min={dayjs(new Date()).startOf('day').format('YYYY-MM-DD')}/>
+                            <button type="button" className="btn btn-primary" onClick={onSetShipDate}>Set Manifest
+                                Date
+                            </button>
+                        </InputGroup>
+                    </FormColumn>
+                </div>
+                <div className="col-md-6 col-12">
+                    <div className="row g-3">
+                        <ManifestSelector future/>
+                    </div>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <form className="mb-3" onSubmit={onSubmit}>
@@ -120,7 +146,7 @@ const EntryForm = () => {
                         <InputGroup bsSize="sm">
                             <Input type="text" value={currentEntry.WorkTicketNo || ''}
                                    onChange={entryChangeHandler('WorkTicketNo')}
-                                   placeholder="WO #"
+                                   placeholder="WT #"
                                    onBlur={onLoadWorkTicket} myRef={woRef} readOnly={readOnly}
                                    maxLength={7}/>
                             <SpinnerButton spinning={loading} onClick={onLoadWorkTicket} type="button"
@@ -128,13 +154,15 @@ const EntryForm = () => {
                                 <span className="bi-search"/>
                             </SpinnerButton>
                         </InputGroup>
-                        {workOrder?.WorkTicketStatus === 'C' && <Alert color="danger">Work Order {workOrder.WorkTicketNo} is closed.</Alert>}
+                        {workOrder?.WorkTicketStatus === 'C' &&
+                            <Alert color="danger">Work Order {workOrder.WorkTicketNo} is closed.</Alert>}
                     </FormColumn>
                     <FormColumn label="Quantity" width={8}>
                         <input type="number" className="form-control form-control-sm"
                                readOnly={readOnly}
                                required
-                               value={currentEntry.QuantityShipped || ''} onChange={entryChangeHandler('QuantityShipped')}/>
+                               value={currentEntry.QuantityShipped || ''}
+                               onChange={entryChangeHandler('QuantityShipped')}/>
                     </FormColumn>
                     <FormColumn label="Comment" width={8}>
                         <TextareaAutosize value={currentEntry.Comment || ''} minRows={2} maxRows={4}
@@ -147,13 +175,15 @@ const EntryForm = () => {
                     <FormColumn label="Item Code" width={8}>
                         <input type="text" className="form-control form-control-sm"
                                value={currentEntry.ItemCode ?? ''} onChange={entryChangeHandler('ItemCode')}
-                               readOnly={readOnly || !!currentEntry.WorkTicketNo} disabled={!!currentEntry.WorkTicketNo} />
+                               readOnly={readOnly || !!currentEntry.WorkTicketNo}
+                               disabled={!!currentEntry.WorkTicketNo}/>
                     </FormColumn>
                     <FormColumn label="Whse Code" width={8}>
                         <input type="text" className="form-control form-control-sm"
                                value={currentEntry.WarehouseCode ?? ''} onChange={entryChangeHandler('WarehouseCode')}
                                maxLength={3}
-                               readOnly={readOnly || !!currentEntry.WorkTicketNo} disabled={!!currentEntry.WorkTicketNo} />
+                               readOnly={readOnly || !!currentEntry.WorkTicketNo}
+                               disabled={!!currentEntry.WorkTicketNo}/>
                     </FormColumn>
                     {(!readOnly || canEdit) && !!currentEntry.id && (
                         <Alert color="warning" className="mt-1">
@@ -167,7 +197,9 @@ const EntryForm = () => {
                     <FormColumn label="" width={8} className="mt-1">
                         <div className="row g-3">
                             <div className="col-auto">
-                                <button type="submit" className="btn btn-sm btn-primary mr-1" disabled={readOnly && !canEdit}>Save</button>
+                                <button type="submit" className="btn btn-sm btn-primary mr-1"
+                                        disabled={readOnly && !canEdit}>Save
+                                </button>
                             </div>
                             <div className="col-auto">
                                 <button type="button" className="btn btn-sm btn-outline-secondary mr-1"
@@ -188,7 +220,7 @@ const EntryForm = () => {
                     </FormColumn>
                 </div>
                 <div className="col"></div>
-                <ManifestSelector />
+                <ManifestSelector/>
             </div>
         </form>
     )

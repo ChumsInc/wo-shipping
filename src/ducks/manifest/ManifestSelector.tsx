@@ -6,12 +6,17 @@ import {loadManifestEntries} from "./actions";
 import {selectCurrentShipDate, selectShipDates, setCurrentShipDate} from "../shipDates";
 import {useAppDispatch} from "../../app/configureStore";
 import {selectManifestLoading} from "./selectors";
-
-const ManifestSelector: React.FC = () => {
+import dayjs from "dayjs";
+export interface ManifestSelectorProps {
+    future?: boolean;
+}
+const ManifestSelector = ({future}:ManifestSelectorProps) => {
     const dispatch = useAppDispatch();
     const shipDate = useSelector(selectCurrentShipDate);
     const loading = useSelector(selectManifestLoading);
     const shipDates = useSelector(selectShipDates);
+
+    const now = new Date();
 
     useEffect(() => {
         if (shipDate) {
@@ -34,7 +39,7 @@ const ManifestSelector: React.FC = () => {
             <div className="col-auto">Default Manifest Date</div>
             <div className="col-auto">
                 <ShipDateSelect value={shipDate ?? ''} onChange={changeHandler}
-                                values={shipDates}/>
+                                values={shipDates.filter(value => !future || dayjs(value).endOf('day').isAfter(now))}/>
             </div>
             <div className="col-auto">
                 <SpinnerButton spinning={loading} size="sm" onClick={clickHandler}>Reload</SpinnerButton>

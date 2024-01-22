@@ -1,16 +1,16 @@
 import React from "react";
 import numeral from "numeral";
-import formatDate from "date-fns/format";
 import {SortableTableField} from "chums-components";
 import {WOManifestEntryItem} from "chums-types";
 import Tooltip from '@mui/material/Tooltip';
 import {PMManifestEntryItem} from "chums-types/src/production";
+import dayjs from "dayjs";
 
 interface CommentIconProps {
     comment?: string
 }
 
-const CommentIcon = ({comment}:CommentIconProps) => {
+const CommentIcon = ({comment}: CommentIconProps) => {
     if (!comment) {
         return null;
     }
@@ -23,7 +23,12 @@ const CommentIcon = ({comment}:CommentIconProps) => {
 
 export const tableFields: SortableTableField<PMManifestEntryItem>[] = [
     {field: 'id', title: 'ID', sortable: true},
-    {field: 'WorkTicketNo', title: 'Work Ticket', sortable: true, render: (row) => row.WorkTicketNo?.replace(/^0+/, '') ?? ''},
+    {
+        field: 'WorkTicketNo',
+        title: 'Work Ticket',
+        sortable: true,
+        render: (row) => row.WorkTicketNo?.replace(/^0+/, '') ?? ''
+    },
     {field: 'WarehouseCode', title: 'Whse', sortable: true},
     {field: 'ItemCode', title: 'Item', sortable: true},
     {field: 'ItemCodeDesc', title: 'Description', sortable: true},
@@ -46,11 +51,11 @@ export const tableFields: SortableTableField<PMManifestEntryItem>[] = [
         title: 'Packed',
         sortable: true,
         className: 'center',
-        render: (row) => !row.PackDate ? null : formatDate(new Date(row.PackDate), 'MM/dd'),
+        render: (row) => !row.PackDate ? null : dayjs(row.PackDate).format('MM/DD'),
     },
     {
         field: 'ShipDate', title: 'Ship', sortable: true, className: 'center',
-        render: (row) => formatDate(new Date(row.ShipDate), 'MM/dd')
+        render: (row) => dayjs(row.ShipDate).format('MM/DD')
     },
     {field: 'MakeFor', title: 'For', sortable: true},
     {field: 'BinLocation', title: 'Bin Location', sortable: true},

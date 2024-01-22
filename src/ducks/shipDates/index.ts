@@ -4,6 +4,7 @@ import {createAction, createAsyncThunk, createReducer} from "@reduxjs/toolkit";
 import {loadManifestEntries, saveManifestEntry} from "../manifest/actions";
 import {ShipDateResponse} from "../../types";
 import {fetchShipDates} from "../../api/manifest";
+import dayjs from "dayjs";
 
 export interface ShipDatesState {
     list: string[]
@@ -20,11 +21,18 @@ export const initialShipDatesState: ShipDatesState = {
 }
 
 export const setCurrentShipDate = createAction('shipDates/setCurrent', (value: string | null) => {
-    LocalStore.setItem<string | null>(CURRENT_DATE, value);
+    if (!dayjs(value).isValid()) {
+        return {
+            payload: null
+        }
+    }
+    const shipDate = dayjs(value).endOf('day').toISOString();
+    LocalStore.setItem<string | null>(CURRENT_DATE, shipDate);
     return {
-        payload: value
+        payload: shipDate
     };
 });
+
 export const loadShipDates = createAsyncThunk<ShipDateResponse[]>(
     'shipDates/load',
     async () => {
@@ -66,6 +74,12 @@ const shipDatesReducer = createReducer(initialShipDatesState, builder => {
         })
         .addCase(loadManifestEntries.fulfilled, (state, action) => {
             state.list = action.payload.shipDates.map(sd => sd.ShipDate).sort().reverse();
+            if (!action.payload.list.length) {
+                state.list = [
+                    ...state.list.filter(date => date !== action.meta.arg),
+                    action.meta.arg,
+                ].sort().reverse();
+            }
             state.loaded = true;
         })
         .addCase(saveManifestEntry.fulfilled, (state, action) => {
