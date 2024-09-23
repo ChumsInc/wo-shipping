@@ -36,7 +36,7 @@ const App: React.FC = () => {
     }
 
     return (
-        <div className="container-lg">
+        <div>
             <AlertList/>
 
             <TabList className="mb-1" onSelectTab={onSelectTab} tabs={tabs} currentTabId={tab?.id}/>
