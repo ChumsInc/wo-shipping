@@ -1,4 +1,3 @@
-import {WOManifestEntryItem} from "chums-types/src/work-order";
 import {createAction, createAsyncThunk, createReducer, createSelector} from "@reduxjs/toolkit";
 import {Editable} from "chums-types/src/generics";
 import {RootState} from "../../app/configureStore";
@@ -60,7 +59,6 @@ export const selectHistoryTotals = createSelector(
     (list) => {
         return totalsReducer(list, 'Lookup Total');
     }
-
 )
 
 export const setSearch = createAction<Partial<HistorySearch>>('history/setSearch');

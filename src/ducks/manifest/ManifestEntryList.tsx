@@ -6,7 +6,6 @@ import '../history/manifest.css';
 import {commentFields, tableFields} from "./tableFields";
 import ManifestTotalTFoot from "./ManifestTotalTFoot";
 import LocalStore, {CURRENT_ENTRY_ROWS} from "../../LocalStore";
-import {WOManifestEntry} from "chums-types/src/work-order";
 import {
     selectCurrentDayManifestTotals,
     selectCurrentEntry,
@@ -14,7 +13,6 @@ import {
     selectManifestListSort,
     selectManifestTotals
 } from "./selectors";
-import {WOManifestEntryItem} from "chums-types";
 import {useAppDispatch} from "../../app/configureStore";
 import {PMManifestEntry, PMManifestEntryItem} from "chums-types/src/production";
 
@@ -51,7 +49,8 @@ const ManifestEntryList: React.FC = () => {
                            size="sm" keyField="id"
                            renderRow={(row) => (
                                <React.Fragment key={row.id}>
-                                   <DataTableRow fields={tableFields} row={row} onClick={() => onSelect(row)} selected={row.id === current?.id}/>
+                                   <DataTableRow fields={tableFields} row={row} onClick={() => onSelect(row)}
+                                                 selected={row.id === current?.id}/>
                                    {row.Comment && <DataTableRow fields={commentFields} row={row}/>}
                                </React.Fragment>
                            )} tfoot={<ManifestTotalTFoot totals={[todayTotal, total]}/>}/>

@@ -43,7 +43,7 @@ const ManifestPrintList = () => {
             {loading && <LinearProgress variant="indeterminate"/>}
             <SortableTable fields={tableFields} data={list.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)}
                            currentSort={sort} onChangeSort={sortChangeHandler}
-                           renderRow={(row: WOManifestEntryItem) => (
+                           renderRow={(row) => (
                                <React.Fragment key={row.id}>
                                    <DataTableRow fields={tableFields} row={row}/>
                                    {!!row.Comment?.trim() && <DataTableRow fields={commentFields} row={row}/>}

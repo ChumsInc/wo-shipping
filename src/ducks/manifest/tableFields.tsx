@@ -62,8 +62,8 @@ export const tableFields: SortableTableField<PMManifestEntryItem>[] = [
     {field: 'Comment', title: '🔔', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
 ];
 
-export const commentFields: SortableTableField<WOManifestEntryItem>[] = [
+export const commentFields: SortableTableField<PMManifestEntryItem>[] = [
     {field: 'id', title: 'ID', render: () => ''},
-    {field: 'WorkOrderNo', title: 'Work Order', render: () => ''},
+    {field: 'WorkTicketNo', title: 'Work Order', render: () => ''},
     {field: 'Comment', title: 'Comment', colSpan: 10, className: 'text-danger'},
 ]

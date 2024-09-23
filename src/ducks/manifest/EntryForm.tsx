@@ -147,7 +147,7 @@ const EntryForm = () => {
                             <Input type="text" value={currentEntry.WorkTicketNo || ''}
                                    onChange={entryChangeHandler('WorkTicketNo')}
                                    placeholder="WT #"
-                                   onBlur={onLoadWorkTicket} myRef={woRef} readOnly={readOnly}
+                                   onBlur={onLoadWorkTicket} ref={woRef} readOnly={readOnly}
                                    maxLength={7}/>
                             <SpinnerButton spinning={loading} onClick={onLoadWorkTicket} type="button"
                                            tabIndex={-1} color="secondary">

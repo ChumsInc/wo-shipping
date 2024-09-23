@@ -1,16 +1,14 @@
 import {LoadManifestResponse, ManifestEntryResponse, ShipDateResponse, WorkTicket} from "../types";
 import {fetchJSON} from "chums-components";
 import dayjs from "dayjs";
-import {WOManifestEntry} from "chums-types/src/work-order";
-import {WOManifestEntryItem} from "chums-types";
 import {HistorySearch} from "../ducks/history";
 import {PMManifestEntry, PMManifestEntryItem} from "chums-types/src/production";
 
 export async function fetchShipDates(): Promise<ShipDateResponse[]> {
     try {
-        const url = '/api/operations/production/wo/shipping/chums';
+        const url = '/api/operations/production/work-ticket/manifest/dates.json';
         const res = await fetchJSON<{ dates: ShipDateResponse[] }>(url, {cache: 'no-cache'});
-        return res.dates ?? [];
+        return res?.dates ?? [];
     } catch (err: unknown) {
         if (err instanceof Error) {
             console.debug("fetchShipDates()", err.message);
@@ -23,12 +21,12 @@ export async function fetchShipDates(): Promise<ShipDateResponse[]> {
 
 export async function fetchManifestEntries(arg: string): Promise<LoadManifestResponse> {
     try {
-        const url = '/api/operations/production/wo/shipping/chums/:ShipDate'
+        const url = '/api/operations/production/work-ticket/manifest/:ShipDate/list.json'
             .replace(':ShipDate', encodeURIComponent(dayjs(arg).format('YYYY-MM-DD')));
         const res = await fetchJSON<LoadManifestResponse>(url, {cache: "no-cache"});
         return {
-            list: res.list ?? [],
-            shipDates: res.shipDates ?? [],
+            list: res?.list ?? [],
+            shipDates: res?.shipDates ?? [],
         }
     } catch (err: unknown) {
         if (err instanceof Error) {
@@ -58,7 +56,7 @@ export async function fetchManifestEntrySearch(arg: HistorySearch): Promise<PMMa
 
             }
         })
-        const url = `/api/operations/production/wo/shipping/chums/search?${params.toString()}`;
+        const url = `/api/operations/production/work-ticket/manifest/search.json?${params.toString()}`;
         const res = await fetchJSON<PMManifestEntryItem[]>(url, {cache: "no-cache"});
         return res ?? [];
     } catch (err: unknown) {
@@ -74,7 +72,10 @@ export async function fetchManifestEntrySearch(arg: HistorySearch): Promise<PMMa
 export async function postManifestEntry(arg: PMManifestEntry): Promise<LoadManifestResponse> {
     try {
         const {id, Company, WorkTicketNo, ItemCode, WarehouseCode, QuantityShipped, ShipDate, Comment} = arg;
-        const url = '/api/operations/production/wo/shipping/:id'
+
+        const url = (arg.id
+            ? '/api/operations/production/work-ticket/manifest/:id.json'
+            : '/api/operations/production/work-ticket/manifest.json')
             .replace(':id', encodeURIComponent(id));
         const body = {
             id,
@@ -86,7 +87,7 @@ export async function postManifestEntry(arg: PMManifestEntry): Promise<LoadManif
             ShipDate: dayjs(ShipDate).format('YYYY-MM-DD'),
             Comment,
         };
-        await fetchJSON(url, {method: 'post', body: JSON.stringify(body)});
+        await fetchJSON(url, {method: arg.id ? 'PUT' : 'POST', body: JSON.stringify(body)});
         return await fetchManifestEntries(arg.ShipDate);
     } catch (err: unknown) {
         if (err instanceof Error) {
@@ -100,7 +101,7 @@ export async function postManifestEntry(arg: PMManifestEntry): Promise<LoadManif
 
 export async function deleteManifestEntry(arg: PMManifestEntry): Promise<LoadManifestResponse> {
     try {
-        const url = '/api/operations/production/wo/shipping/:id'
+        const url = '/api/operations/production/work-ticket/manifest/:id.json'
             .replace(':id', encodeURIComponent(arg.id));
         await fetchJSON(url, {method: 'delete'});
         return await fetchManifestEntries(arg.ShipDate);
@@ -116,12 +117,10 @@ export async function deleteManifestEntry(arg: PMManifestEntry): Promise<LoadMan
 
 export async function fetchManifestEntry(arg: number): Promise<ManifestEntryResponse | null> {
     try {
-        const url = '/api/operations/production/wo/shipping/:id'
+        const url = '/api/operations/production/work-ticket/manifest/:id.json'
             .replace(':id', encodeURIComponent(arg));
-        const res = await fetchJSON<{
-            entry: PMManifestEntryItem
-        }>(url, {cache: 'no-cache'});
-        if (!res.entry) {
+        const res = await fetchJSON<{entry: PMManifestEntryItem}>(url, {cache: 'no-cache'});
+        if (!res?.entry) {
             return null;
         }
         const workTicket = await fetchWorkTicket(res.entry.WorkTicketNo);
@@ -144,10 +143,10 @@ export async function fetchWorkTicket(arg?: string | null): Promise<WorkTicket |
         if (!arg) {
             return null;
         }
-        const url = '/api/operations/production/work-ticket/chums/:workTicketNo'
+        const url = '/api/operations/production/work-ticket/:workTicketNo.json'
             .replace(':workTicketNo', encodeURIComponent(arg.padStart(12, '0')));
         const res = await fetchJSON<{ workTicket: WorkTicket }>(url, {cache: 'no-cache'})
-        return res.workTicket ?? null;
+        return res?.workTicket ?? null;
     } catch (err: unknown) {
         if (err instanceof Error) {
             console.debug("fetchWorkTicket()", err.message);

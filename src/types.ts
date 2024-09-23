@@ -1,5 +1,5 @@
 import {WOManifestEntryItem} from "chums-types";
-import {WOManifestEntry} from "chums-types/src/work-order";
+import {WOManifestEntry} from "chums-types";
 import {PMManifestEntry, PMManifestEntryItem} from "chums-types/src/production";
 import Decimal from "decimal.js";
 
