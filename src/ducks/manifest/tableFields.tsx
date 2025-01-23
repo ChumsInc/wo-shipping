@@ -47,6 +47,13 @@ export const tableFields: SortableTableField<PMManifestEntryItem>[] = [
         render: (row) => numeral(row.QuantityOrdered).format('0,0')
     },
     {
+       field: 'ProductionDueDate',
+       title: 'Due',
+       sortable: true,
+       className: 'center',
+       render:  (row) => !row.ProductionDueDate ? null : dayjs(row.ProductionDueDate).format('MM/DD')
+    },
+    {
         field: 'PackDate',
         title: 'Packed',
         sortable: true,
