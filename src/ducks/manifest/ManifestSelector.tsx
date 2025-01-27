@@ -7,6 +7,7 @@ import {selectCurrentShipDate, selectShipDates, setCurrentShipDate} from "../shi
 import {useAppDispatch} from "../../app/configureStore";
 import {selectManifestLoading} from "./selectors";
 import dayjs from "dayjs";
+import {Col, Row} from "react-bootstrap";
 export interface ManifestSelectorProps {
     future?: boolean;
 }
@@ -35,16 +36,16 @@ const ManifestSelector = ({future}:ManifestSelectorProps) => {
     }
 
     return (
-        <>
-            <div className="col-auto">Default Manifest Date</div>
-            <div className="col-auto">
+        <Row gap={3}>
+            <Col xs="auto">Default Manifest Date</Col>
+            <Col xs="auto">
                 <ShipDateSelect value={shipDate ?? ''} onChange={changeHandler}
                                 values={shipDates.filter(value => !future || dayjs(value).endOf('day').isAfter(now))}/>
-            </div>
-            <div className="col-auto">
+            </Col>
+            <Col xs="auto">
                 <SpinnerButton spinning={loading} size="sm" onClick={clickHandler}>Reload</SpinnerButton>
-            </div>
-        </>
+            </Col>
+        </Row>
     )
 }
 

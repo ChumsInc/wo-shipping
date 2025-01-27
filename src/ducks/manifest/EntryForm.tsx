@@ -1,7 +1,7 @@
 import React, {ChangeEvent, createRef, FormEvent, useEffect, useState} from 'react';
 import {useSelector} from 'react-redux';
 import {loadWorkTicket, removeManifestEntry, saveManifestEntry, setNewEntry, updateCurrentEntry} from "./actions";
-import {Alert, FormColumn, Input, InputGroup, SpinnerButton} from "chums-components";
+import {FormColumn, Input, SpinnerButton} from "chums-components";
 import {selectCurrentShipDate, setCurrentShipDate} from "../shipDates";
 import {useAppDispatch} from "../../app/configureStore";
 import {selectCurrentEntry, selectCurrentLoading, selectCurrentWorkTicket} from "./selectors";
@@ -10,6 +10,10 @@ import ManifestSelector from "./ManifestSelector";
 import {selectCanEdit, selectCanEnter} from "../permissions";
 import dayjs from "dayjs";
 import {PMManifestEntry} from "chums-types/src/production";
+import Alert from 'react-bootstrap/Alert';
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
+import {Col, Row} from "react-bootstrap";
 
 
 const EntryForm = () => {
@@ -107,11 +111,11 @@ const EntryForm = () => {
 
     if (!shipDate || dayjs(shipDate).isBefore(new Date(), 'day')) {
         return (
-            <div className="row g-3">
-                <div className="col-md-6 col-12">
+            <Row gap={3}>
+                <Col md={6} xs={12}>
                     <FormColumn label="Ship Date" width={8}>
-                        <InputGroup bsSize="sm">
-                            <Input type="date" value={inputDate(currentEntry.ShipDate)} onChange={onChangeShipDate}
+                        <InputGroup size="sm">
+                            <FormControl type="date" value={inputDate(currentEntry.ShipDate)} onChange={onChangeShipDate}
                                    readOnly={!!currentEntry.id && readOnly}
                                    min={dayjs(new Date()).startOf('day').format('YYYY-MM-DD')}/>
                             <button type="button" className="btn btn-primary" onClick={onSetShipDate}>Set Manifest
@@ -119,13 +123,11 @@ const EntryForm = () => {
                             </button>
                         </InputGroup>
                     </FormColumn>
-                </div>
-                <div className="col-md-6 col-12">
-                    <div className="row g-3">
-                        <ManifestSelector future/>
-                    </div>
-                </div>
-            </div>
+                </Col>
+                <Col md={6} xs={12}>
+                    <ManifestSelector future/>
+                </Col>
+            </Row>
         )
     }
 
@@ -134,16 +136,16 @@ const EntryForm = () => {
             <div className="row g-3">
                 <div className="col-6">
                     <FormColumn label="Ship Date" width={8}>
-                        <InputGroup bsSize="sm">
+                        <InputGroup size="sm">
                             <Input type="date" value={inputDate(currentEntry.ShipDate)} onChange={onChangeShipDate}
                                    readOnly={!!currentEntry.id && readOnly}/>
-                            <div className="input-group-text">
+                            <InputGroup.Text>
                                 {currentEntry.ShipDate ? new Date(currentEntry.ShipDate).toLocaleDateString(undefined, {weekday: 'short'}) : 'N/A'}
-                            </div>
+                            </InputGroup.Text>
                         </InputGroup>
                     </FormColumn>
                     <FormColumn label="Work Ticket #" width={8}>
-                        <InputGroup bsSize="sm">
+                        <InputGroup size="sm">
                             <Input type="text" value={currentEntry.WorkTicketNo || ''}
                                    onChange={entryChangeHandler('WorkTicketNo')}
                                    placeholder="WT #"
@@ -155,7 +157,7 @@ const EntryForm = () => {
                             </SpinnerButton>
                         </InputGroup>
                         {workOrder?.WorkTicketStatus === 'C' &&
-                            <Alert color="danger">Work Order {workOrder.WorkTicketNo} is closed.</Alert>}
+                            <Alert variant="danger">Work Order {workOrder.WorkTicketNo} is closed.</Alert>}
                     </FormColumn>
                     <FormColumn label="Quantity" width={8}>
                         <input type="number" className="form-control form-control-sm"
@@ -186,7 +188,7 @@ const EntryForm = () => {
                                disabled={!!currentEntry.WorkTicketNo}/>
                     </FormColumn>
                     {(!readOnly || canEdit) && !!currentEntry.id && (
-                        <Alert color="warning" className="mt-1">
+                        <Alert variant="warning" className="mt-1">
                             <strong className="me-1">Hey!</strong> Editing entry #{currentEntry.id}?
                         </Alert>
                     )}

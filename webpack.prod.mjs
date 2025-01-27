@@ -24,13 +24,14 @@ export default merge(common, {
                 // cache: true,
             })
         ],
+
     },
     output: {
         filename: "[name].[contenthash:8].js",
-
+        clean: true,
     },
     plugins: [
-        new CleanWebpackPlugin(),
+
         new WebpackManifestPlugin({
             filter: (file) => !file.path.includes('dist') && !file.name.includes('.map'),
         }),
