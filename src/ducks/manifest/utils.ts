@@ -1,11 +1,19 @@
 import {ManifestTotals} from "../../types";
 import {SortProps} from "chums-components";
 import {WOManifestEntryItem} from "chums-types";
-import dayjs from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 import {PMManifestEntryItem} from "chums-types/src/production";
 import Decimal from "decimal.js";
 
 const initialValue: ManifestTotals = {QuantityOrdered: 0, QuantityShipped: 0};
+
+export function formatDate(date:string|number|Date|Dayjs):string {
+    const _date = dayjs(date);
+    if (!_date.isValid()) {
+        return 'N/A'
+    }
+    return _date.isSame(new Date(), 'year') ? _date.format('MM/DD') : _date.format('MM/DD/YYYY');
+}
 
 export const totalsReducer = (list: PMManifestEntryItem[], label: string = ''): ManifestTotals =>
     list.reduce((previousValue, {QuantityOrdered, QuantityShipped}) =>

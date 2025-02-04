@@ -1,10 +1,9 @@
 import React from "react";
 import numeral from "numeral";
 import {SortableTableField} from "chums-components";
-import {WOManifestEntryItem} from "chums-types";
 import Tooltip from '@mui/material/Tooltip';
 import {PMManifestEntryItem} from "chums-types/src/production";
-import dayjs from "dayjs";
+import {formatDate} from "./utils";
 
 interface CommentIconProps {
     comment?: string
@@ -47,26 +46,32 @@ export const tableFields: SortableTableField<PMManifestEntryItem>[] = [
         render: (row) => numeral(row.QuantityOrdered).format('0,0')
     },
     {
-       field: 'ProductionDueDate',
-       title: 'Due',
-       sortable: true,
-       className: 'center',
-       render:  (row) => !row.ProductionDueDate ? null : dayjs(row.ProductionDueDate).format('MM/DD')
+        field: 'ProductionDueDate',
+        title: 'Due',
+        sortable: true,
+        className: 'center',
+        render: (row) => !row.ProductionDueDate ? null : formatDate(row.ProductionDueDate)
     },
     {
         field: 'PackDate',
         title: 'Packed',
         sortable: true,
         className: 'center',
-        render: (row) => !row.PackDate ? null : dayjs(row.PackDate).format('MM/DD'),
+        render: (row) => !row.PackDate ? null : formatDate(row.PackDate),
     },
     {
         field: 'ShipDate', title: 'Ship', sortable: true, className: 'center',
-        render: (row) => dayjs(row.ShipDate).format('MM/DD')
+        render: (row) => formatDate(row.ShipDate)
     },
     {field: 'MakeFor', title: 'For', sortable: true},
     {field: 'BinLocation', title: 'Bin Location', sortable: true},
-    {field: 'Comment', title: <span className="bi-chat-square-text" title="Comments" />, align: 'end', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
+    {
+        field: 'Comment',
+        title: <span className="bi-chat-square-text" title="Comments"/>,
+        align: 'end',
+        sortable: true,
+        render: ({Comment}) => <CommentIcon comment={Comment}/>
+    }
 ];
 
 export const commentFields: SortableTableField<PMManifestEntryItem>[] = [
