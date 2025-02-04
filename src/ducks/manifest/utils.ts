@@ -30,6 +30,7 @@ export const manifestSorter = ({
         case 'ItemCodeDesc':
         case 'BinLocation':
         case 'MakeFor':
+        case 'Comment':
             return (
                 (a[field] ?? '').toLowerCase() === (b[field] ?? '').toLowerCase()
                     ? a.id - b.id

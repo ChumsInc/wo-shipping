@@ -11,7 +11,7 @@ interface CommentIconProps {
 }
 
 const CommentIcon = ({comment}: CommentIconProps) => {
-    if (!comment) {
+    if (!comment || !comment.trim()) {
         return null;
     }
     return (
@@ -66,11 +66,11 @@ export const tableFields: SortableTableField<PMManifestEntryItem>[] = [
     },
     {field: 'MakeFor', title: 'For', sortable: true},
     {field: 'BinLocation', title: 'Bin Location', sortable: true},
-    {field: 'Comment', title: '🔔', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
+    {field: 'Comment', title: <span className="bi-chat-square-text" title="Comments" />, align: 'end', sortable: true, render: ({Comment}) => <CommentIcon comment={Comment}/>}
 ];
 
 export const commentFields: SortableTableField<PMManifestEntryItem>[] = [
     {field: 'id', title: 'ID', render: () => ''},
     {field: 'WorkTicketNo', title: 'Work Order', render: () => ''},
-    {field: 'Comment', title: 'Comment', colSpan: 10, className: 'text-danger'},
+    {field: 'Comment', title: 'Comment', colSpan: 11, className: 'text-danger'},
 ]

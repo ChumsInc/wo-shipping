@@ -15,7 +15,7 @@ const ManifestTotalTFoot: React.FC<ManifestTotalTFootProps> = ({totals}) => {
                     <th colSpan={5}>{total?.label || 'Total'}</th>
                     <td className="right">{numeral(total?.QuantityShipped).format('0,0')}</td>
                     <td className="right">{numeral(total?.QuantityOrdered).format('0,0')}</td>
-                    <th colSpan={5}></th>
+                    <th colSpan={6}></th>
                 </tr>
             ))}
         </tfoot>
