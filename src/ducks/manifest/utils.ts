@@ -46,6 +46,7 @@ export const manifestSorter = ({
             ) * sortMod;
         case 'PackDate':
         case 'ShipDate':
+        case 'ProductionDueDate':
             return (dayjs(a[field]).valueOf() - dayjs(b[field]).valueOf()) * sortMod;
         case 'QuantityShipped':
         case 'QuantityOrdered':
